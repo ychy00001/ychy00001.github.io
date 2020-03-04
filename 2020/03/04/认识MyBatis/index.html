@@ -46,6 +46,8 @@
     
     <title>
         
+            认识MyBatis | 
+        
         远方小镇
     </title>
 
@@ -55,7 +57,7 @@
 
     <meta name="format-detection" content="telephone=no"/>
     <meta name="description" itemprop="description" content="Rain的个人博客">
-    <meta name="keywords" content="IT,JAVA,架构">
+    <meta name="keywords" content="IT,JAVA,架构,Mybatis">
     <meta name="theme-color" content="#0097A7">
 
     <!-- Disable Fucking Bloody Baidu Tranformation -->
@@ -82,6 +84,9 @@
         <style id="style_css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("style_css","/css/style.min.css?NKhlKQkXw/c66TR5p4wO+w==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
 
         
+            
+                <style id="prettify_css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("prettify_css","/css/prettify.min.css?zp8STOU9v89XWFEnN+6YmQ==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
+                <style id="prettify_theme"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("prettify_theme","/css/prettify/github-v2.min.css?AfzKxt++K+/lhZBlSjnxwg==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
             
         
 
@@ -213,7 +218,7 @@
     <!-- WebAPP Icons -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="远方小镇">
-    <meta name="msapplication-starturl" content="http://ychy00001.xin/">
+    <meta name="msapplication-starturl" content="http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/">
     <meta name="msapplication-navbutton-color" content="#0097A7">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="远方小镇">
@@ -228,13 +233,16 @@
     
 
     <!-- The Open Graph protocol -->
-    <meta property="og:url" content="http://ychy00001.xin/">
+    <meta property="og:url" content="http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="远方小镇">
+    <meta property="og:title" content="认识MyBatis | 远方小镇">
     <meta property="og:image" content="/img/favicon.png">
     <meta property="og:description" content="Rain的个人博客">
-    
+    <meta property="og:article:tag" content="Mybatis"> 
 
+    
+        <meta property="article:published_time" content="Wed Mar 04 2020 15:46:55 GMT+0800">
+        <meta property="article:modified_time" content="Wed Mar 04 2020 19:49:19 GMT+0800">
     
 
     <!-- The Twitter Card protocol -->
@@ -242,35 +250,43 @@
 
     <!-- Add canonical link for SEO -->
     
-        <link rel="canonical" href="http://ychy00001.xin" />
+        <link rel="canonical" href="http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/index.html" />
     
 
     <!-- Structured-data for SEO -->
     
         
+
+
 <script type="application/ld+json">
 {
-    "@context": "http://schema.org",
-    "@type": "Website",
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": "http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/index.html",
+    "headline": "认识MyBatis",
+    "datePublished": "Wed Mar 04 2020 15:46:55 GMT+0800",
+    "dateModified": "Wed Mar 04 2020 19:49:19 GMT+0800",
+    "author": {
+        "@type": "Person",
+        "name": "Rain",
+        "image": {
+            "@type": "ImageObject",
+            "url": "/img/avatar.png"
+        },
+        "description": "Hi, nice to meet you"
+    },
     "publisher": {
         "@type": "Organization",
         "name": "远方小镇",
-        "logo": "/img/favicon.png"
+        "logo": {
+            "@type":"ImageObject",
+            "url": "/img/favicon.png"
+        }
     },
-    "url": "http://ychy00001.xin",
-    "image": {
-        "@type": "ImageObject",
-        "url": "/img/favicon.png"
-    },
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "http://ychy00001.xin"
-    },
-    "description": "Rain的个人博客"
+    "keywords": ",MybatisIT,JAVA,架构",
+    "description": "Rain的个人博客",
 }
 </script>
-
-
 
 
     
@@ -304,226 +320,378 @@
                         </button>
                     
 
-                    <!-- Index Module -->
-<div class="material-index mdl-grid">
+                    <!-- Post TOC -->
+
     
-        <!-- Paradox Header -->
-        <!-- Daily pic -->
-<div class="mdl-card mdl-shadow--2dp daily-pic mdl-cell mdl-cell--8-col index-top-block">
-
-    <!-- Pic & Slogan -->
-    <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url(/img/daily_pic.png)">
-        <p class="index-top-block-slogan"><a href="#">
-        
-            
-                Hi, nice to meet you
-            
-        
-        </a></p>
-    </div>
-
-    <!-- Avatar & Name -->
-    <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-        <!-- Author Avatar -->
-        <div id="author-avatar">
-            <img src="/img/avatar.png" width="32px" height="32px" alt="avatar">
-        </div>
-        <div>
-            <strong>Rain</strong>
-        </div>
-    </div>
-</div>
-
-        <!-- Blog info -->
-<div class="mdl-card mdl-shadow--2dp something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop index-top-block">
-
-    <!-- Search -->
-    
-
-
-
-
-    <!-- Local -->
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable" method="post" action="">
-        <label id="search-label" class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent mdl-shadow--4dp" for="search">
-            <i class="material-icons mdl-color-text--white" role="presentation">search</i>
-        </label>
-
-        <form autocomplete="off" id="search-form" class="mdl-textfield__expandable-holder">
-            <input type="text" id="search" class="form-control mdl-textfield__input search-input" name="q" results="0" placeholder=""/>
-            <label id="search-form-label" class="mdl-textfield__label" for="search"></label>
-        </form>
-    </div>
-    <div id="local-search-result"></div>
-
-
-
-    <!-- LOGO -->
-    <div class="something-else-logo mdl-color--white mdl-color-text--grey-600">
-        <a href="#" target="_blank">
-            <img src="/img/logo.png" alt="logo" />
+    <!-- Back Button -->
+    <!--
+    <div class="material-back" id="backhome-div" tabindex="0">
+        <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+           href="#" onclick="window.history.back();return false;"
+           target="_self"
+           role="button"
+           data-upgraded=",MaterialButton,MaterialRipple">
+            <i class="material-icons" role="presentation">arrow_back</i>
+            <span class="mdl-button__ripple-container">
+                <span class="mdl-ripple"></span>
+            </span>
         </a>
     </div>
+    -->
 
-    <!-- Infomation -->
-    <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
-        <!-- Blog Title -->
-        <div>
-            <strong>远方小镇</strong>
-        </div>
-        <div class="section-spacer"></div>
 
-        <!-- Pages -->
-        <button id="show-pages-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-            <i class="material-icons" role="presentation">view_carousel</i>
-            <span class="visuallyhidden">Pages</span>
-        </button>
-        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="show-pages-button">
-            
-                <a class="index_share-link" href="/about" title="关于">
-                    <li class="mdl-menu__item mdl-js-ripple-effect">
-                        关于
-                    </li>
-                </a>
-            
-        </ul>
-
-        <!-- Menu -->
-        <button id="menubtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-            <i class="material-icons" role="presentation">more_vert</i>
-            <span class="visuallyhidden">show menu</span>
-        </button>
-        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="menubtn">
-            
-
-            
-
-            
-                <a class="index_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=远方小镇&url=http://ychy00001.xin&pic=http://ychy00001.xin/img/favicon.png&searchPic=false&style=simple" target="_blank">
-                    <li class="mdl-menu__item mdl-js-ripple-effect">
-                        分享到微博
-                    </li>
-                </a>
-            
-
-            
-                <a class="index_share-link" href="https://twitter.com/intent/tweet?text=远方小镇&url=http://ychy00001.xin&via=Rain" target="_blank">
-                    <li class="mdl-menu__item mdl-js-ripple-effect">
-                        分享到 Twitter
-                    </li>
-                </a>
-            
-
-            
-                <a class="index_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://ychy00001.xin" target="_blank">
-                    <li class="mdl-menu__item mdl-js-ripple-effect">
-                        分享到 Facebook
-                    </li>
-                </a>
-            
-
-            
-                <a class="index_share-link" href="https://plus.google.com/share?url=http://ychy00001.xin" target="_blank">
-                    <li class="mdl-menu__item mdl-js-ripple-effect">
-                        分享到 Google+
-                    </li>
-                </a>
-            
-
-            
-
-            
-
-            
-        </ul>
-    </div>
-</div>
-
+    <!-- Left aligned menu below button -->
     
-    <div class="locate-thumbnail-symbol"></div>
+    
+    <button id="post-toc-trigger-btn"
+        class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">format_list_numbered</i>
+    </button>
 
-    <!-- Pin on top -->
+    <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#一、简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">一、简介</span></a></li><li class="post-toc-item post-toc-level-1"><a class="post-toc-link" href="#二、简单使用"><span class="post-toc-number">2.</span> <span class="post-toc-text">二、简单使用</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#1-创建maven项目-使用IDEA可以直接创建"><span class="post-toc-number">2.0.0.1.</span> <span class="post-toc-text">1. 创建maven项目 使用IDEA可以直接创建</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#2-在resource目录创建mybatis-config-xml文件"><span class="post-toc-number">2.0.0.2.</span> <span class="post-toc-text">2. 在resource目录创建mybatis-config.xml文件</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#3-在resource目录创建mapper目录并创建UserMapper-xml文件"><span class="post-toc-number">2.0.0.3.</span> <span class="post-toc-text">3. 在resource目录创建mapper目录并创建UserMapper.xml文件</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#4-单元测试"><span class="post-toc-number">2.0.0.4.</span> <span class="post-toc-text">4. 单元测试</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#5-项目依赖"><span class="post-toc-number">2.0.0.5.</span> <span class="post-toc-text">5.项目依赖</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）"><span class="post-toc-number">2.0.0.6.</span> <span class="post-toc-text">6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#7-使用注解的方式访问"><span class="post-toc-number">2.0.0.7.</span> <span class="post-toc-text">7. 使用注解的方式访问</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#同时需要更改mybatis-config-xml"><span class="post-toc-number">2.0.0.7.1.</span> <span class="post-toc-text">同时需要更改mybatis-config.xml</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#8-注意：注解和xml形式不可同时使用，否则会报如下错误"><span class="post-toc-number">2.0.0.8.</span> <span class="post-toc-text">8.注意：注解和xml形式不可同时使用，否则会报如下错误</span></a></li></ol></li></ol></li></ol></li></ol>
+    </ul>
     
 
-    <!-- Normal Post -->
-    
-        
-            
-                <!-- Paradox Thumbnail -->
-                <div class="post_entry-module mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col fade out">
-    <!-- Post Thumbnail -->
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+    <!-- Paradox Post Header -->
     
         
             <!-- Random Thumbnail -->
             <div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
-        
-    
+            <script type="text/ls-javascript" id="post-thumbnail-script">
+    var randomNum = Math.floor(Math.random() * 19 + 1);
 
-        <!-- Post Title -->
-        <p class="article-headline-p"><a href="/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/">认识MyBatis</a></p>
-    </div>
-
-    <!-- Post Excerpt -->
-    <div class="mdl-color-text--grey-600 mdl-card__supporting-text post_entry-content">
-        
-            一、简介
-        
-        &nbsp;&nbsp;&nbsp;
-        <span>
-            <a href="/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/" target="_self">阅读全文</a>
-        </span>
-    </div>
-    <!-- Post_entry Info-->
-    <div id="post_entry-info">
-        <div id="post_entry-left-info" class="mdl-card__supporting-text meta mdl-color-text--grey-600 ">
-            <!-- Author Avatar -->
-            <div id="author-avatar">
-                <img src="/img/avatar.png" width="44px" height="44px" alt="Rain's avatar">
-            </div>
-            <div>
-                <strong>Rain</strong>
-                <span>3月 04, 2020</span>
-            </div>
-        </div>
-        <div id="post_entry-right-info">
-          
-
-            
-
-            
-
-            <!-- Post Views -->
-            <span class="post_entry-views">
-            </span>
-        </div>
-    </div>
-</div>
-
-            
-            
-        
-    
-
-    
-
-    
-        <script type="text/ls-javascript" id="thumbnail-script">
-    var randomNum;
-
-    var locatePost = $('.locate-thumbnail-symbol').next();
-    for(var i = 0; i < 10; i++) {
-        randomNum = Math.floor(Math.random() * 19 + 1);
-
-        locatePost.children('.post_thumbnail-random').attr('id', 'random_thumbnail-'+randomNum);
-        locatePost.children('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
+    $('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
     $('.post_thumbnail-random').addClass('lazy');
-
-        locatePost = locatePost.next();
-    }
 </script>
 
+        
+    
+            <p class="article-headline-p">
+                认识MyBatis
+            </p>
+        </div>
+
+
+
+
+
+                
+                    <!-- Paradox Post Info -->
+                    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>Rain</strong>
+        <span>3月 04, 2020</span>
+    </div>
+
+    <div class="section-spacer"></div>
+
+    <!-- Favorite -->
+    <!--
+        <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+            <i class="material-icons" role="presentation">favorite</i>
+            <span class="visuallyhidden">favorites</span>
+        </button>
+    -->
+
+    <!-- Qrcode -->
+    
+
+    <!-- Tags (bookmark) -->
+    
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        <a class="post_tag-link" href="/tags/Mybatis/" rel="tag">Mybatis</a>
+    </ul>
+    
+
+    <!-- Share -->
+    
+        <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+
+    
+
+    <!-- Share Weibo -->
+    
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=认识MyBatis&url=http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/index.html&pic=http://ychy00001.xin/img/favicon.png&searchPic=false&style=simple" target="_blank">
+            <li class="mdl-menu__item">
+                分享到微博
+            </li>
+        </a>
+    
+
+    <!-- Share Twitter -->
+    
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=认识MyBatis&url=http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/index.html&via=Rain" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Twitter
+            </li>
+        </a>
+    
+
+    <!-- Share Facebook -->
+    
+        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Facebook
+            </li>
+        </a>
+    
+
+    <!-- Share Google+ -->
+    
+        <a class="post_share-link" href="https://plus.google.com/share?url=http://ychy00001.xin/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Google+
+            </li>
+        </a>
+    
+
+    <!-- Share LinkedIn -->
+    
+
+    <!-- Share QQ -->
+    
+
+    <!-- Share Telegram -->
+    
+</ul>
+
     
 </div>
+
+                
+
+                <!-- Post Content -->
+                <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+    
+        <h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p>官网的简介写的比较好，建议大家直接去官网查看。<br><a href="https://mybatis.org/mybatis-3/zh/index.html" target="_blank" rel="noopener">https://mybatis.org/mybatis-3/zh/index.html</a><br>简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。</p>
+<blockquote>
+<p>其他ORM框架</p>
+</blockquote>
+<ul>
+<li>JDBC</li>
+<li>JdbcTemplate</li>
+<li>Hibernate </li>
+</ul>
+<h1 id="二、简单使用"><a href="#二、简单使用" class="headerlink" title="二、简单使用"></a>二、简单使用</h1><h4 id="1-创建maven项目-使用IDEA可以直接创建"><a href="#1-创建maven项目-使用IDEA可以直接创建" class="headerlink" title="1. 创建maven项目 使用IDEA可以直接创建"></a>1. 创建maven项目 使用IDEA可以直接创建</h4><p><img src="http://img.coderain.cn/54398902.png" alt=""></p>
+<h4 id="2-在resource目录创建mybatis-config-xml文件"><a href="#2-在resource目录创建mybatis-config-xml文件" class="headerlink" title="2. 在resource目录创建mybatis-config.xml文件"></a>2. 在resource目录创建mybatis-config.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE configuration
+        PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
+&lt;configuration&gt;
+    &lt;environments default=&quot;development&quot;&gt;
+        &lt;environment id=&quot;development&quot;&gt;
+            &lt;transactionManager type=&quot;JDBC&quot;/&gt;
+            &lt;dataSource type=&quot;POOLED&quot;&gt;
+                &lt;property name=&quot;driver&quot; value=&quot;com.mysql.cj.jdbc.Driver&quot;/&gt;
+                &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://${host}/${database}&quot;/&gt;
+                &lt;property name=&quot;username&quot; value=&quot;${username}&quot;/&gt;
+                &lt;property name=&quot;password&quot; value=&quot;${password}&quot;/&gt;
+            &lt;/dataSource&gt;
+        &lt;/environment&gt;
+    &lt;/environments&gt;
+    &lt;mappers&gt;
+        &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt;
+    &lt;/mappers&gt;
+&lt;/configuration&gt;</code></pre>
+<blockquote>
+<p>注意 代码中${host}/${database} ${username}  ${password} 需要替换成自己对应的真实账号密码及链接路径</p>
+</blockquote>
+<h4 id="3-在resource目录创建mapper目录并创建UserMapper-xml文件"><a href="#3-在resource目录创建mapper目录并创建UserMapper-xml文件" class="headerlink" title="3. 在resource目录创建mapper目录并创建UserMapper.xml文件"></a>3. 在resource目录创建mapper目录并创建UserMapper.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper
+        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+&lt;mapper namespace=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;
+    &lt;select id=&quot;selectUser&quot; resultType=&quot;com.ychy.mybatis.dao.User&quot;&gt;
+        select * from User where id = #{id}
+    &lt;/select&gt;
+&lt;/mapper&gt;</code></pre>
+<blockquote>
+<p>注意：namespace不是必须有这个包，mybatis使用namespace使用更长的限定名来将sql语句隔离开。<br>但是namespace我们都遵循这个规范就好，按照包名加类名来写，这样IDEA有插件可以方便跳转映射关系。见后面：使用正确描述每个语句的参数和返回值的接口UserMapper.java</p>
+</blockquote>
+<h4 id="4-单元测试"><a href="#4-单元测试" class="headerlink" title="4. 单元测试"></a>4. 单元测试</h4><pre><code class="java">public class MyBatisTest {
+    @Test
+    public void testUserSelectOne() throws Exception{
+        String resource = &quot;mybatis-config.xml&quot;;
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        // 第一种方式 直接调用
+        User user = sqlSession.selectOne(&quot;com.ychy.mybatis.mapper.UserMapper.selectUser&quot;,1);
+        System.out.println(user);
+    }
+}</code></pre>
+<blockquote>
+<p>这里sqlSession调用selectOne方法中第一个参数就是UserMapper.xml中namespace+id凭借而成的。<br>第二个参数为要查询的ID</p>
+</blockquote>
+<h4 id="5-项目依赖"><a href="#5-项目依赖" class="headerlink" title="5.项目依赖"></a>5.项目依赖</h4><pre><code class="xml">  &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.mybatis&lt;/groupId&gt;
+            &lt;artifactId&gt;mybatis&lt;/artifactId&gt;
+            &lt;version&gt;3.5.3&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;mysql&lt;/groupId&gt;
+            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+            &lt;version&gt;8.0.19&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;version&gt;1.18.12&lt;/version&gt;
+            &lt;scope&gt;provided&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+            &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+            &lt;version&gt;${junit.jupiter.version}&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.junit.platform&lt;/groupId&gt;
+            &lt;artifactId&gt;junit-platform-launcher&lt;/artifactId&gt;
+            &lt;version&gt;1.6.0&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+    &lt;/dependencies&gt;</code></pre>
+<h4 id="6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）"><a href="#6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）" class="headerlink" title="6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）"></a>6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</h4><pre><code class="java">package com.ychy.mybatis.mapper;
+
+import com.ychy.mybatis.dao.User;
+
+public interface UserMapper {
+     User selectUser(int id);
+}</code></pre>
+<blockquote>
+<p>为什么可以直接通过UserMapper接口就可以查询User呢？因为Mybatis底层使用了动态代理类。<br>#####单元测试可以更改如下</p>
+</blockquote>
+<pre><code class="java">public class MyBatisTest {
+    @Test
+    public void testUserSelectOne() throws Exception{
+        String resource = &quot;mybatis-config.xml&quot;;
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        // 第一种方式 直接调用
+// User user = sqlSession.selectOne(&quot;com.ychy.mybatis.mapper.UserMapper.selectUser&quot;,1);
+        // 第二种方式获取UserMapper 第二种方法有很多优势，首先它不依赖于字符串字面值，会更安全一点； 其次，如果你的 IDE 有代码补全功能，那么代码补全可以帮你快速选择已映射的 SQL 语句。
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        User user = userMapper.selectUser(1);
+        System.out.println(user);
+    }
+}</code></pre>
+<blockquote>
+<p>这样不仅可以执行更清晰和类型安全的代码，而且还不用担心易错的字符串字面值以及强制类型转换</p>
+</blockquote>
+<h4 id="7-使用注解的方式访问"><a href="#7-使用注解的方式访问" class="headerlink" title="7. 使用注解的方式访问"></a>7. 使用注解的方式访问</h4><pre><code class="java">public interface UserMapper {
+     @Select(&quot;SELECT * FROM user WHERE id = #{id}&quot;)
+     User selectUser(int id);
+}</code></pre>
+<h5 id="同时需要更改mybatis-config-xml"><a href="#同时需要更改mybatis-config-xml" class="headerlink" title="同时需要更改mybatis-config.xml"></a>同时需要更改mybatis-config.xml</h5><pre><code class="xml">    &lt;mappers&gt;
+        &lt;!-- 使用xml方式 --&gt;
+&lt;!-- &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt; --&gt;
+        &lt;!-- 使用注解方式方式 --&gt;
+        &lt;mapper class=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;&lt;/mapper&gt;
+    &lt;/mappers&gt;</code></pre>
+<blockquote>
+<p>这样可以不用写UserMapper.xml文件，但是需要更改mybatis-config.xml中mappers的内容</p>
+</blockquote>
+<h4 id="8-注意：注解和xml形式不可同时使用，否则会报如下错误"><a href="#8-注意：注解和xml形式不可同时使用，否则会报如下错误" class="headerlink" title="8.注意：注解和xml形式不可同时使用，否则会报如下错误"></a>8.注意：注解和xml形式不可同时使用，否则会报如下错误</h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: 
+### Error building SqlSession.
+### The error may exist in com/ychy/mybatis/mapper/UserMapper.java (best guess)
+### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)</code></pre>
+        
+    
+
+    
+</div>
+
+
+                
+
+                <!-- Post Comments -->
+                
+                    
+    <!-- 使用 Gitalk -->
+<div id="gitalk-comment">
+    <!-- Gitalk 评论框 -->
+<div id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script>
+    var gitalk = new Gitalk({
+            clientID: '5181cef18402238d995c',
+            clientSecret: 'e2fea88cd4f43b29f13b6bef59f7d61035becd46',
+            repo: 'ychy00001.github.io.git',
+            owner: 'ychy00001',
+            admin: ['ychy00001'],
+            // facebook-like distraction free mode
+            distractionFreeMode: false
+        })
+   gitalk.render('gitalk-container')
+</script>
+</div>
+<style>
+    #gitalk-comment {
+        background-color: #eee;
+        padding: 2pc;
+    }
+</style>
+
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    <!-- Prev Nav -->
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+</nav>
+
+        </div>
+    </div>
+
 
 
                     
@@ -815,29 +983,6 @@ It will not impact the appearance and can give developers a lot of support :)
    <!-- GitTalk -->
 
  
-<!-- Swiftye -->
-
-
-<!-- Local Search-->
- <script type="text/ls-javascript" id="search-local-js-script">
-    var searchFunc=function(c,a,b){$.ajax({url:c,dataType:"xml",success:function(e){var d=$("entry",e).map(function(){return{title:$("title",this).text(),content:$("content",this).text(),url:$("url",this).text()}}).get();var g=document.getElementById(a);var f=document.getElementById(b);g.addEventListener("input",function(){var i='<ul class="search-result-list">';var h=this.value.trim().toLowerCase().split(/[\s\-]+/);f.innerHTML="";if(this.value.trim().length<=0){return}d.forEach(function(o){var n=true;var s=[];var t=o.title.trim().toLowerCase();var m=o.content.trim().replace(/<[^>]+>/g,"").toLowerCase();var j=o.url;var u=-1;var q=-1;var p=-1;if(t!==""&&m!==""){h.forEach(function(w,x){u=t.indexOf(w);q=m.indexOf(w);if(u<0&&q<0){n=false}else{if(q<0){q=0}if(x===0){p=q}}})}if(n){i+='<li><a href="'+j+'" class="search-result-title" target="_blank">'+t;var r=o.content.trim().replace(/<[^>]+>/g,"");if(p>=0){var k=p-6;var l=p+6;if(k<0){k=0}if(k===0){l=10}if(l>r.length){l=r.length}var v=r.substr(k,l);h.forEach(function(w){var x=new RegExp(w,"gi");v=v.replace(x,'<em class="search-keyword">'+w+"</em>")});i+='<p class="search-result">'+v+"...</p></a>"}}});f.innerHTML=i})}})};
-</script>
-
-
-<script type="text/ls-javascript" id="search-input-script">
-  var inputArea = document.querySelector('#search');
-  var getSearchFile = function() {
-      var path = 'search.xml';
-      searchFunc(path, 'search', 'local-search-result');
-  }
-
-  if(inputArea) {
-      inputArea.onfocus = function() {
-          getSearchFile();
-      }
-  }
-</script>
- 
 
 <!-- UC Browser Compatible -->
 <script>
@@ -851,7 +996,7 @@ It will not impact the appearance and can give developers a lot of support :)
 </script>
 
 <!-- Import prettify js  -->
-   
+   <script>lsloader.load("prettify_js","/js/prettify.min.js?WN07fivHQSMKWy7BmHBB6w==", true)</script>    
 
 <!-- Window Load -->
 <!-- add class for prettify -->
@@ -862,6 +1007,11 @@ It will not impact the appearance and can give developers a lot of support :)
   });
 
   
+      
+          $(function() {
+              $('pre').addClass('prettyprint linenums').attr('style', 'overflow:auto;');
+              prettyPrint();
+              })
       
   
   

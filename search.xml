@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>认识MyBatis</title>
+      <link href="/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/"/>
+      <url>/2020/03/04/%E8%AE%A4%E8%AF%86MyBatis/</url>
+      
+        <content type="html"><![CDATA[<h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p>官网的简介写的比较好，建议大家直接去官网查看。<br><a href="https://mybatis.org/mybatis-3/zh/index.html" target="_blank" rel="noopener">https://mybatis.org/mybatis-3/zh/index.html</a><br>简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。</p><blockquote><p>其他ORM框架</p></blockquote><ul><li>JDBC</li><li>JdbcTemplate</li><li>Hibernate </li></ul><h1 id="二、简单使用"><a href="#二、简单使用" class="headerlink" title="二、简单使用"></a>二、简单使用</h1><h4 id="1-创建maven项目-使用IDEA可以直接创建"><a href="#1-创建maven项目-使用IDEA可以直接创建" class="headerlink" title="1. 创建maven项目 使用IDEA可以直接创建"></a>1. 创建maven项目 使用IDEA可以直接创建</h4><p><img src="http://img.coderain.cn/54398902.png" alt=""></p><h4 id="2-在resource目录创建mybatis-config-xml文件"><a href="#2-在resource目录创建mybatis-config-xml文件" class="headerlink" title="2. 在resource目录创建mybatis-config.xml文件"></a>2. 在resource目录创建mybatis-config.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;!DOCTYPE configuration        PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;        &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;&lt;configuration&gt;    &lt;environments default=&quot;development&quot;&gt;        &lt;environment id=&quot;development&quot;&gt;            &lt;transactionManager type=&quot;JDBC&quot;/&gt;            &lt;dataSource type=&quot;POOLED&quot;&gt;                &lt;property name=&quot;driver&quot; value=&quot;com.mysql.cj.jdbc.Driver&quot;/&gt;                &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://${host}/${database}&quot;/&gt;                &lt;property name=&quot;username&quot; value=&quot;${username}&quot;/&gt;                &lt;property name=&quot;password&quot; value=&quot;${password}&quot;/&gt;            &lt;/dataSource&gt;        &lt;/environment&gt;    &lt;/environments&gt;    &lt;mappers&gt;        &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt;    &lt;/mappers&gt;&lt;/configuration&gt;</code></pre><blockquote><p>注意 代码中${host}/${database} ${username}  ${password} 需要替换成自己对应的真实账号密码及链接路径</p></blockquote><h4 id="3-在resource目录创建mapper目录并创建UserMapper-xml文件"><a href="#3-在resource目录创建mapper目录并创建UserMapper-xml文件" class="headerlink" title="3. 在resource目录创建mapper目录并创建UserMapper.xml文件"></a>3. 在resource目录创建mapper目录并创建UserMapper.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;&lt;!DOCTYPE mapper        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;&lt;mapper namespace=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;    &lt;select id=&quot;selectUser&quot; resultType=&quot;com.ychy.mybatis.dao.User&quot;&gt;        select * from User where id = #{id}    &lt;/select&gt;&lt;/mapper&gt;</code></pre><blockquote><p>注意：namespace不是必须有这个包，mybatis使用namespace使用更长的限定名来将sql语句隔离开。<br>但是namespace我们都遵循这个规范就好，按照包名加类名来写，这样IDEA有插件可以方便跳转映射关系。见后面：使用正确描述每个语句的参数和返回值的接口UserMapper.java</p></blockquote><h4 id="4-单元测试"><a href="#4-单元测试" class="headerlink" title="4. 单元测试"></a>4. 单元测试</h4><pre><code class="java">public class MyBatisTest {    @Test    public void testUserSelectOne() throws Exception{        String resource = &quot;mybatis-config.xml&quot;;        InputStream inputStream = Resources.getResourceAsStream(resource);        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);        SqlSession sqlSession = sqlSessionFactory.openSession();        // 第一种方式 直接调用        User user = sqlSession.selectOne(&quot;com.ychy.mybatis.mapper.UserMapper.selectUser&quot;,1);        System.out.println(user);    }}</code></pre><blockquote><p>这里sqlSession调用selectOne方法中第一个参数就是UserMapper.xml中namespace+id凭借而成的。<br>第二个参数为要查询的ID</p></blockquote><h4 id="5-项目依赖"><a href="#5-项目依赖" class="headerlink" title="5.项目依赖"></a>5.项目依赖</h4><pre><code class="xml">  &lt;dependencies&gt;        &lt;dependency&gt;            &lt;groupId&gt;org.mybatis&lt;/groupId&gt;            &lt;artifactId&gt;mybatis&lt;/artifactId&gt;            &lt;version&gt;3.5.3&lt;/version&gt;        &lt;/dependency&gt;        &lt;dependency&gt;            &lt;groupId&gt;mysql&lt;/groupId&gt;            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;            &lt;version&gt;8.0.19&lt;/version&gt;        &lt;/dependency&gt;        &lt;dependency&gt;            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;            &lt;artifactId&gt;lombok&lt;/artifactId&gt;            &lt;version&gt;1.18.12&lt;/version&gt;            &lt;scope&gt;provided&lt;/scope&gt;        &lt;/dependency&gt;        &lt;dependency&gt;            &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;            &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;            &lt;version&gt;${junit.jupiter.version}&lt;/version&gt;            &lt;scope&gt;test&lt;/scope&gt;        &lt;/dependency&gt;        &lt;dependency&gt;            &lt;groupId&gt;org.junit.platform&lt;/groupId&gt;            &lt;artifactId&gt;junit-platform-launcher&lt;/artifactId&gt;            &lt;version&gt;1.6.0&lt;/version&gt;            &lt;scope&gt;test&lt;/scope&gt;        &lt;/dependency&gt;    &lt;/dependencies&gt;</code></pre><h4 id="6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）"><a href="#6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）" class="headerlink" title="6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）"></a>6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</h4><pre><code class="java">package com.ychy.mybatis.mapper;import com.ychy.mybatis.dao.User;public interface UserMapper {     User selectUser(int id);}</code></pre><blockquote><p>为什么可以直接通过UserMapper接口就可以查询User呢？因为Mybatis底层使用了动态代理类。<br>#####单元测试可以更改如下</p></blockquote><pre><code class="java">public class MyBatisTest {    @Test    public void testUserSelectOne() throws Exception{        String resource = &quot;mybatis-config.xml&quot;;        InputStream inputStream = Resources.getResourceAsStream(resource);        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);        SqlSession sqlSession = sqlSessionFactory.openSession();        // 第一种方式 直接调用// User user = sqlSession.selectOne(&quot;com.ychy.mybatis.mapper.UserMapper.selectUser&quot;,1);        // 第二种方式获取UserMapper 第二种方法有很多优势，首先它不依赖于字符串字面值，会更安全一点； 其次，如果你的 IDE 有代码补全功能，那么代码补全可以帮你快速选择已映射的 SQL 语句。        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);        User user = userMapper.selectUser(1);        System.out.println(user);    }}</code></pre><blockquote><p>这样不仅可以执行更清晰和类型安全的代码，而且还不用担心易错的字符串字面值以及强制类型转换</p></blockquote><h4 id="7-使用注解的方式访问"><a href="#7-使用注解的方式访问" class="headerlink" title="7. 使用注解的方式访问"></a>7. 使用注解的方式访问</h4><pre><code class="java">public interface UserMapper {     @Select(&quot;SELECT * FROM user WHERE id = #{id}&quot;)     User selectUser(int id);}</code></pre><h5 id="同时需要更改mybatis-config-xml"><a href="#同时需要更改mybatis-config-xml" class="headerlink" title="同时需要更改mybatis-config.xml"></a>同时需要更改mybatis-config.xml</h5><pre><code class="xml">    &lt;mappers&gt;        &lt;!-- 使用xml方式 --&gt;&lt;!-- &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt; --&gt;        &lt;!-- 使用注解方式方式 --&gt;        &lt;mapper class=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;&lt;/mapper&gt;    &lt;/mappers&gt;</code></pre><blockquote><p>这样可以不用写UserMapper.xml文件，但是需要更改mybatis-config.xml中mappers的内容</p></blockquote><h4 id="8-注意：注解和xml形式不可同时使用，否则会报如下错误"><a href="#8-注意：注解和xml形式不可同时使用，否则会报如下错误" class="headerlink" title="8.注意：注解和xml形式不可同时使用，否则会报如下错误"></a>8.注意：注解和xml形式不可同时使用，否则会报如下错误</h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: ### Error building SqlSession.### The error may exist in com/ychy/mybatis/mapper/UserMapper.java (best guess)### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)</code></pre>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> Mybatis </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+    
+    
+    <entry>
+      <title>关于我</title>
+      <link href="/about/index.html"/>
+      <url>/about/index.html</url>
+      
+        <content type="html"><![CDATA[<p>#简介<br>I’m Rain!</p>]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>分类</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>标签</title>
+      <link href="/tags/index.html"/>
+      <url>/tags/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+  
+</search>

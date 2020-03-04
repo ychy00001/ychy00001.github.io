@@ -46,7 +46,7 @@
     
     <title>
         
-            about | 
+            关于我 | 
         
         远方小镇
     </title>
@@ -83,6 +83,8 @@
         <style id="material_css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("material_css","/css/material.min.css?Z7a72R1E4SxzBKR/WGctOA==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
         <style id="style_css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("style_css","/css/style.min.css?NKhlKQkXw/c66TR5p4wO+w==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
 
+        
+            
         
 
     
@@ -230,7 +232,7 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://ychy00001.xin/about/">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="about | 远方小镇">
+    <meta property="og:title" content="关于我 | 远方小镇">
     <meta property="og:image" content="/img/favicon.png">
     <meta property="og:description" content="Rain的个人博客">
     
@@ -310,7 +312,7 @@
         
     
             <p class="article-headline-p">
-                about
+                关于我
             </p>
         </div>
 
@@ -361,7 +363,7 @@
 
     <!-- Share Weibo -->
     
-        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=about&url=http://ychy00001.xin/about/index.html&pic=http://ychy00001.xin/img/favicon.png&searchPic=false&style=simple" target="_blank">
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=关于我&url=http://ychy00001.xin/about/index.html&pic=http://ychy00001.xin/img/favicon.png&searchPic=false&style=simple" target="_blank">
             <li class="mdl-menu__item">
                 分享到微博
             </li>
@@ -370,7 +372,7 @@
 
     <!-- Share Twitter -->
     
-        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=about&url=http://ychy00001.xin/about/index.html&via=Rain" target="_blank">
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=关于我&url=http://ychy00001.xin/about/index.html&via=Rain" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Twitter
             </li>
@@ -427,6 +429,35 @@
                 <!-- Post Comments -->
                 
                     
+    <!-- 使用 Gitalk -->
+<div id="gitalk-comment">
+    <!-- Gitalk 评论框 -->
+<div id="gitalk-container"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<script>
+    var gitalk = new Gitalk({
+            clientID: '5181cef18402238d995c',
+            clientSecret: 'e2fea88cd4f43b29f13b6bef59f7d61035becd46',
+            repo: 'ychy00001.github.io.git',
+            owner: 'ychy00001',
+            admin: ['ychy00001'],
+            // facebook-like distraction free mode
+            distractionFreeMode: false
+        })
+   gitalk.render('gitalk-container')
+</script>
+</div>
+<style>
+    #gitalk-comment {
+        background-color: #eee;
+        padding: 2pc;
+    }
+</style>
+
                 
             </div>
 
@@ -475,7 +506,7 @@
 
     <!-- Sidebar Email -->
     <a data-toggle="dropdown" class="sidebar-brand" href="#settings-dropdown">
-        youremail@email.com
+        ychy00001@163.com
         <b class="caret"></b>
     </a>
 </div>
@@ -524,7 +555,7 @@
             </a>
             <ul class="dropdown-menu">
             <li>
-                <a class="sidebar_archives-link" href="/archives/2020/01/">一月 2020<span class="sidebar_archives-count">1</span></a>
+                <a class="sidebar_archives-link" href="/archives/2020/03/">三月 2020<span class="sidebar_archives-count">1</span></a>
             </ul>
         </li>
         
@@ -532,15 +563,30 @@
 
     <!-- Categories  -->
     
+        <li class="dropdown">
+            <a href="#" class="ripple-effect dropdown-toggle" data-toggle="dropdown">
+                
+                    <i class="material-icons sidebar-material-icons">chrome_reader_mode</i>
+                
+                分类
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                
+            </ul>
+        </li>
+        
+    
 
     <!-- Pages  -->
     
         <li>
-            <a href="/about" title="About">
+            <a href="/about" title="关于">
                 
                     <i class="material-icons sidebar-material-icons">person</i>
                 
-                About
+                关于
             </a>
         </li>
         
@@ -610,29 +656,11 @@ It will not impact the appearance and can give developers a lot of support :)
         <div class="mdl-mini-footer--left-section sns-list">
     <!-- Twitter -->
     
-        <a href="https://twitter.com/twitter" target="_blank">
-            <button class="mdl-mini-footer--social-btn social-btn footer-sns-twitter">
-                <span class="visuallyhidden">Twitter</span>
-            </button><!--
-     --></a>
-    
 
     <!-- Facebook -->
     
-        <a href="https://www.facebook.com/facebook" target="_blank">
-            <button class="mdl-mini-footer--social-btn social-btn footer-sns-facebook">
-                <span class="visuallyhidden">Facebook</span>
-            </button><!--
-     --></a>
-    
 
     <!-- Google + -->
-    
-        <a href="https://www.google.com/" target="_blank">
-            <button class="mdl-mini-footer--social-btn social-btn footer-sns-gplus">
-                <span class="visuallyhidden">Google Plus</span>
-            </button><!--
-     --></a>
     
 
     <!-- Weibo -->
@@ -670,6 +698,11 @@ It will not impact the appearance and can give developers a lot of support :)
         <!--Copyright-->
         <div id="copyright">
             Copyright&nbsp;©&nbsp;<span year></span>&nbsp;远方小镇
+            
+                <br>
+                
+                    <a href="http://www.beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">京ICP备17029279号-4</a>
+                
             
         </div>
 
@@ -723,6 +756,8 @@ It will not impact the appearance and can give developers a lot of support :)
 
 
 
+   <!-- GitTalk -->
+
  
 
 <!-- UC Browser Compatible -->
@@ -737,7 +772,7 @@ It will not impact the appearance and can give developers a lot of support :)
 </script>
 
 <!-- Import prettify js  -->
- 
+   
 
 <!-- Window Load -->
 <!-- add class for prettify -->
@@ -747,6 +782,8 @@ It will not impact the appearance and can give developers a lot of support :)
       $('.post-toc-wrap').parent('.mdl-menu__container').css('position', 'fixed');
   });
 
+  
+      
   
   
 </script>
@@ -781,7 +818,7 @@ It will not impact the appearance and can give developers a lot of support :)
       var copyrightNow = new Date().getFullYear();
       var textContent = document.querySelector('span[year]')
 
-      copyrightSince = 0000;
+      copyrightSince = 2018;
       if (copyrightSince === copyrightNow||copyrightSince === 0000) {
           textContent.textContent = copyrightNow
       } else {
