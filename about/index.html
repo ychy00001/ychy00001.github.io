@@ -24,8 +24,13 @@
     <meta http-equiv="x-dns-prefetch-control" content="on">
 
 
+    <link rel="dns-prefetch" href="https://cdn1.lncld.net"/>
 
 
+
+
+    <link rel="dns-prefetch" href="https://cdn1.lncld.net"/>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net"/>
 
 
 
@@ -429,34 +434,30 @@
                 <!-- Post Comments -->
                 
                     
-    <!-- 使用 Gitalk -->
-<div id="gitalk-comment">
-    <!-- Gitalk 评论框 -->
-<div id="gitalk-container"></div>
-
-<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-
-<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-
+    <div id="comment" style='padding:10px;' class="vcomment"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
 <script>
-    var gitalk = new Gitalk({
-            clientID: '5181cef18402238d995c',
-            clientSecret: 'e2fea88cd4f43b29f13b6bef59f7d61035becd46',
-            repo: 'ychy00001.github.io.git',
-            owner: 'ychy00001',
-            admin: ['ychy00001'],
-            // facebook-like distraction free mode
-            distractionFreeMode: false
-        })
-   gitalk.render('gitalk-container')
+    var GUEST_INFO = ['nick','mail','link'];
+    var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+        return GUEST_INFO.indexOf(item) > -1
+    });
+    var notify = 'true' === 'true';
+    var verify = 'true' === 'true';
+    new Valine({
+        el: '.vcomment',
+        notify: notify,
+        verify: verify,
+        appId: "nMP4IuPbHM3sEUJjUAqqMwwc-gzGzoHsz",
+        appKey: "juIhJUhCJPleatOoVM6hMSOe",
+        placeholder: "快来评价吧!",
+        pageSize:'10',
+        avatar:'identicon',
+        lang:'zh-cn',
+        guest_info: guest_info
+    });
 </script>
-</div>
-<style>
-    #gitalk-comment {
-        background-color: #eee;
-        padding: 2pc;
-    }
-</style>
+
 
                 
             </div>
@@ -756,7 +757,7 @@ It will not impact the appearance and can give developers a lot of support :)
 
 
 
-   <!-- GitTalk -->
+   
 
  
 
