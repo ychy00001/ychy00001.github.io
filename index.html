@@ -84,7 +84,7 @@
     <!-- Import CSS -->
     
         <style id="material_css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("material_css","/css/material.min.css?Z7a72R1E4SxzBKR/WGctOA==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
-        <style id="style_css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("style_css","/css/style.min.css?NKhlKQkXw/c66TR5p4wO+w==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
+        <style id="style_css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("style_css","/css/style.min.css?85qdIwPKtRJfRn/tmSRPsA==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";}, false)</script>
 
         
 
@@ -302,9 +302,11 @@
             它不会影响美观并可以给开发者很大的支持。 :)
             -->
             <div>
-                Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a>
-                <br>
-                Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a>
+              
+                
+                    <a target="_blank" href="https://beian.miit.gov.cn/" rel="nofollow noopener">京ICP备17029279号</a>
+                
+            
             </div>
         </div>
 
@@ -424,17 +426,18 @@
     <div class="post_entry-content mdl-color-text--grey-600 mdl-card__supporting-text">
         <!-- Post Title -->
         <p class="post_entry-title">
-            <a href="/2021/06/15/hello-world/">Hello World</a>
+            <a href="/2021/06/%E8%AE%A4%E8%AF%86MyBatis/">认识MyBatis</a>
         </p>
 
         <!-- Post Excerpt -->
         <p class="post_entry-excerpt">
             
-                Welcome to Hexo! This is your very first po...
+                [toc]
+
             
             &nbsp;&nbsp;&nbsp;
             <span>
-                <a href="/2021/06/15/hello-world/" target="_self">阅读全文</a>
+                <a href="/2021/06/%E8%AE%A4%E8%AF%86MyBatis/" target="_self">阅读全文</a>
             </span>
         </p>
 
@@ -447,7 +450,7 @@
         <div class="post_entry-footer-border"></div>
         <div class="post_entry-footer-info">
             <div class="post_entry-footer-date">
-                6月 15, 2021
+                6月 16, 2021
             </div>
             <div class="post_entry-footer-comment">
                 
@@ -476,6 +479,7 @@
     
       <!--Copyright-->
       <div id="copyright">
+
         Copyright&nbsp;©&nbsp;<span year></span>&nbsp;远方小镇
         
             <br>
@@ -581,13 +585,16 @@
 
 <script>
       var copyrightNow = new Date().getFullYear();
-      var textContent = document.querySelector('span[year]')
-
+      var textContentItem = document.querySelectorAll('span[year]')
       copyrightSince = 2020;
       if (copyrightSince === copyrightNow||copyrightSince === 0000) {
-          textContent.textContent = copyrightNow
+        for (let i = 0; i < textContentItem.length; i++) {
+          textContentItem[i].textContent = copyrightNow
+        }
       } else {
-          textContent.textContent = copyrightSince + ' - ' + copyrightNow
+        for (let i = 0; i < textContentItem.length; i++) {
+          textContentItem[i].textContent = copyrightSince + ' - ' + copyrightNow
+        }
       }
 
       (function(){
