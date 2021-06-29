@@ -239,7 +239,8 @@
     &lt;mappers&gt;
         &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt;
     &lt;/mappers&gt;
-&lt;/configuration&gt;</code></pre>
+&lt;/configuration&gt;
+</code></pre>
 <blockquote>
 <p>注意 代码中${host}/${database} ${username}  ${password} 需要替换成自己对应的真实账号密码及链接路径</p>
 </blockquote>
@@ -251,7 +252,8 @@
     &lt;select id=&quot;selectUser&quot; resultType=&quot;com.ychy.mybatis.dao.User&quot;&gt;
         select * from User where id = #&#123;id&#125;
     &lt;/select&gt;
-&lt;/mapper&gt;</code></pre>
+&lt;/mapper&gt;
+</code></pre>
 <blockquote>
 <p>注意：namespace不是必须有这个包，mybatis使用namespace使用更长的限定名来将sql语句隔离开。<br>但是namespace我们都遵循这个规范就好，按照包名加类名来写，这样IDEA有插件可以方便跳转映射关系。见后面：使用正确描述每个语句的参数和返回值的接口UserMapper.java</p>
 </blockquote>
@@ -266,7 +268,8 @@
         User user = sqlSession.selectOne(&quot;com.ychy.mybatis.mapper.UserMapper.selectUser&quot;,1);
         System.out.println(user);
     &#125;
-&#125;</code></pre>
+&#125;
+</code></pre>
 <blockquote>
 <p>这里sqlSession调用selectOne方法中第一个参数就是UserMapper.xml中namespace+id凭借而成的。<br>第二个参数为要查询的ID</p>
 </blockquote>
@@ -304,14 +307,16 @@
             &lt;scope&gt;test&lt;/scope&gt;
         &lt;/dependency&gt;
 
-    &lt;/dependencies&gt;</code></pre>
+    &lt;/dependencies&gt;
+</code></pre>
 <h4><span id="6-jie-kou-shi-bian-cheng-shi-yong-zheng-que-miao-shu-mei-ge-yu-ju-de-can-shu-he-fan-hui-zhi-de-jie-kou-gt-usermapper-java">6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</span><a href="#6-jie-kou-shi-bian-cheng-shi-yong-zheng-que-miao-shu-mei-ge-yu-ju-de-can-shu-he-fan-hui-zhi-de-jie-kou-gt-usermapper-java" class="header-anchor">#</a></h4><pre><code class="java">package com.ychy.mybatis.mapper;
 
 import com.ychy.mybatis.dao.User;
 
 public interface UserMapper &#123;
      User selectUser(int id);
-&#125;</code></pre>
+&#125;
+</code></pre>
 <blockquote>
 <p>为什么可以直接通过UserMapper接口就可以查询User呢？因为Mybatis底层使用了动态代理类。</p>
 </blockquote>
@@ -329,27 +334,32 @@ public interface UserMapper &#123;
         User user = userMapper.selectUser(1);
         System.out.println(user);
     &#125;
-&#125;</code></pre>
+&#125;
+</code></pre>
 <blockquote>
 <p>这样不仅可以执行更清晰和类型安全的代码，而且还不用担心易错的字符串字面值以及强制类型转换</p>
 </blockquote>
 <h4><span id="7-shi-yong-zhu-jie-de-fang-shi-fang-wen">7. 使用注解的方式访问</span><a href="#7-shi-yong-zhu-jie-de-fang-shi-fang-wen" class="header-anchor">#</a></h4><pre><code class="java">public interface UserMapper &#123;
      @Select(&quot;SELECT * FROM user WHERE id = #&#123;id&#125;&quot;)
      User selectUser(int id);
-&#125;</code></pre>
+&#125;
+</code></pre>
 <h5><span id="tong-shi-xu-yao-geng-gai-mybatis-config-xml">同时需要更改mybatis-config.xml</span><a href="#tong-shi-xu-yao-geng-gai-mybatis-config-xml" class="header-anchor">#</a></h5><pre><code class="xml">    &lt;mappers&gt;
         &lt;!-- 使用xml方式 --&gt;
 &lt;!-- &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt; --&gt;
         &lt;!-- 使用注解方式方式 --&gt;
         &lt;mapper class=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;&lt;/mapper&gt;
-    &lt;/mappers&gt;</code></pre>
+    &lt;/mappers&gt;
+</code></pre>
 <blockquote>
 <p>这样可以不用写UserMapper.xml文件，但是需要更改mybatis-config.xml中mappers的内容</p>
 </blockquote>
 <h4><span id="8-zhu-yi-zhu-jie-he-xml-xing-shi-bu-ke-tong-shi-shi-yong-fou-ze-hui-bao-ru-xia-cuo-wu">8.注意：注解和xml形式不可同时使用，否则会报如下错误</span><a href="#8-zhu-yi-zhu-jie-he-xml-xing-shi-bu-ke-tong-shi-shi-yong-fou-ze-hui-bao-ru-xia-cuo-wu" class="header-anchor">#</a></h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: 
 ### Error building SqlSession.
 ### The error may exist in com/ychy/mybatis/mapper/UserMapper.java (best guess)
-### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)</code></pre>
+### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)
+</code></pre>
+
     </div>
 
     

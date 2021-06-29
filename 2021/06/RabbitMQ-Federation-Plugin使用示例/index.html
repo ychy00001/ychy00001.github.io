@@ -252,22 +252,34 @@ services:
       - rabbitmq-network
 
 networks:
-  rabbitmq-network:</code></pre><h2><span id="yun-xing-docker-compose">运行docker-compose</span><a href="#yun-xing-docker-compose" class="header-anchor">#</a></h2><pre><code>docker-compose up -d</code></pre><h2><span id="jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian">进入两个容器分别执行加载federation插件</span><a href="#jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian" class="header-anchor">#</a></h2><pre><code># 进入rabbitmq
+  rabbitmq-network:
+</code></pre>
+<h2><span id="yun-xing-docker-compose">运行docker-compose</span><a href="#yun-xing-docker-compose" class="header-anchor">#</a></h2><pre><code>docker-compose up -d
+</code></pre>
+<h2><span id="jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian">进入两个容器分别执行加载federation插件</span><a href="#jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian" class="header-anchor">#</a></h2><pre><code># 进入rabbitmq
 docker-compose exec rabbitmq bash
 rabbitmq-plugins enable rabbitmq_federation
 rabbitmq-plugins enable rabbitmq_federation_management
 # 进入rabbitmq-upstream
 docker-compose exec rabbitmq-upstream bash
 rabbitmq-plugins enable rabbitmq_federation
-rabbitmq-plugins enable rabbitmq_federation_management</code></pre><h2><span id="cha-kan-rong-qi-ip">查看容器ip</span><a href="#cha-kan-rong-qi-ip" class="header-anchor">#</a></h2><pre><code>ifconfig</code></pre><p>当前我的两个容器ip如下<br>|名称|ip|<br>|—|—|<br>|rabbitmq|172.21.0.3|<br>|rabbitmq-upstream|172.21.0.2|</p>
+rabbitmq-plugins enable rabbitmq_federation_management
+</code></pre>
+<h2><span id="cha-kan-rong-qi-ip">查看容器ip</span><a href="#cha-kan-rong-qi-ip" class="header-anchor">#</a></h2><pre><code>ifconfig
+</code></pre>
+<p>当前我的两个容器ip如下<br>|名称|ip|<br>|—|—|<br>|rabbitmq|172.21.0.3|<br>|rabbitmq-upstream|172.21.0.2|</p>
 <h2><span id="zai-rabbitmq-rong-qi-she-zhi-upstream">在rabbitmq容器设置upstream</span><a href="#zai-rabbitmq-rong-qi-she-zhi-upstream" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
 docker-compose exec rabbitmq bash
 rabbitmqctl set_parameter federation-upstream my-upstream \
-&#39;&#123;&quot;uri&quot;:&quot;amqp://guest:guest@172.21.0.2:5672&quot;,&quot;expires&quot;:3600000&#125;&#39;</code></pre><p>设置好后ui界面会显示出对应的upstream。<br><img src="1.png" alt></p>
+&#39;&#123;&quot;uri&quot;:&quot;amqp://guest:guest@172.21.0.2:5672&quot;,&quot;expires&quot;:3600000&#125;&#39;
+</code></pre>
+<p>设置好后ui界面会显示出对应的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/1.png"></p>
 <h2><span id="zai-rabbitmq-rong-qi-she-zhi-policy">在rabbitmq容器设置policy</span><a href="#zai-rabbitmq-rong-qi-she-zhi-policy" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
 docker-compose exec rabbitmq bash
-rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;</code></pre><p>执行后可以查看federation对应UI界面会将本地的exchange与federate-me policy绑定<br><img src="2.png" alt></p>
-<p>同时federation-upstream容器对应UI界面会有对应的绑定关系展示<br><img src="3.png" alt></p>
+rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;
+</code></pre>
+<p>执行后可以查看federation对应UI界面会将本地的exchange与federate-me policy绑定<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/2.png"></p>
+<p>同时federation-upstream容器对应UI界面会有对应的绑定关系展示<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/3.png"></p>
 <h2><span id="dai-ma-ce-shi-python">代码测试（python）</span><a href="#dai-ma-ce-shi-python" class="header-anchor">#</a></h2><h3><span id="sheng-chan-zhe-dai-ma">生产者代码</span><a href="#sheng-chan-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq-upstream用于发送消息。</p>
 <pre><code>import pika
 import sys
@@ -292,7 +304,9 @@ if __name__ == &#39;__main__&#39;:
         try:
             sys.exit(0)
         except SystemExit:
-            os._exit(0)</code></pre><h3><span id="xiao-fei-zhe-dai-ma">消费者代码</span><a href="#xiao-fei-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq用于接收upstream的消息。</p>
+            os._exit(0)
+</code></pre>
+<h3><span id="xiao-fei-zhe-dai-ma">消费者代码</span><a href="#xiao-fei-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq用于接收upstream的消息。</p>
 <pre><code>import pika
 import os
 import sys
@@ -324,7 +338,9 @@ if __name__ == &#39;__main__&#39;:
         try:
             sys.exit(0)
         except SystemExit:
-            os._exit(0)</code></pre><h3><span id="yun-xing-jie-tu">运行截图</span><a href="#yun-xing-jie-tu" class="header-anchor">#</a></h3><p><img src="4.png" alt><br><img src="5.png" alt></p>
+            os._exit(0)
+</code></pre>
+<h3><span id="yun-xing-jie-tu">运行截图</span><a href="#yun-xing-jie-tu" class="header-anchor">#</a></h3><p><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/4.png"><br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/5.png"></p>
 
     </div>
 
