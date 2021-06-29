@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>认识MyBatis</title>
+    <url>/2021/06/%E8%AE%A4%E8%AF%86MyBatis/</url>
+    <content><![CDATA[<p>MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。</p>
+<span id="more"></span>
+
+<div class="toc">
+
+<!-- toc -->
+
+<ul>
+<li><a href="#yi-jian-jie">一、简介</a></li>
+<li><a href="#er-jian-dan-shi-yong">二、简单使用</a></li>
+</ul>
+<!-- tocstop -->
+
+</div>
+
+<h1><span id="yi-jian-jie">一、简介</span><a href="#yi-jian-jie" class="header-anchor">#</a></h1><p>官网的简介写的比较好，建议大家直接去官网查看。<br><a href="https://mybatis.org/mybatis-3/zh/index.html">https://mybatis.org/mybatis-3/zh/index.html</a><br>简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。</p>
+<blockquote>
+<p>其他ORM框架</p>
+</blockquote>
+<ul>
+<li>JDBC</li>
+<li>JdbcTemplate</li>
+<li>Hibernate </li>
+</ul>
+<h1><span id="er-jian-dan-shi-yong">二、简单使用</span><a href="#er-jian-dan-shi-yong" class="header-anchor">#</a></h1><h4><span id="1-chuang-jian-maven-xiang-mu-shi-yong-idea-ke-yi-zhi-jie-chuang-jian">1. 创建maven项目 使用IDEA可以直接创建</span><a href="#1-chuang-jian-maven-xiang-mu-shi-yong-idea-ke-yi-zhi-jie-chuang-jian" class="header-anchor">#</a></h4><h4><span id="2-zai-resource-mu-lu-chuang-jian-mybatis-config-xml-wen-jian">2. 在resource目录创建mybatis-config.xml文件</span><a href="#2-zai-resource-mu-lu-chuang-jian-mybatis-config-xml-wen-jian" class="header-anchor">#</a></h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE configuration
+        PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
+&lt;configuration&gt;
+    &lt;environments default=&quot;development&quot;&gt;
+        &lt;environment id=&quot;development&quot;&gt;
+            &lt;transactionManager type=&quot;JDBC&quot;/&gt;
+            &lt;dataSource type=&quot;POOLED&quot;&gt;
+                &lt;property name=&quot;driver&quot; value=&quot;com.mysql.cj.jdbc.Driver&quot;/&gt;
+                &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://$&#123;host&#125;/$&#123;database&#125;&quot;/&gt;
+                &lt;property name=&quot;username&quot; value=&quot;$&#123;username&#125;&quot;/&gt;
+                &lt;property name=&quot;password&quot; value=&quot;$&#123;password&#125;&quot;/&gt;
+            &lt;/dataSource&gt;
+        &lt;/environment&gt;
+    &lt;/environments&gt;
+    &lt;mappers&gt;
+        &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt;
+    &lt;/mappers&gt;
+&lt;/configuration&gt;
+</code></pre>
+<blockquote>
+<p>注意 代码中${host}/${database} ${username}  ${password} 需要替换成自己对应的真实账号密码及链接路径</p>
+</blockquote>
+<h4><span id="3-zai-resource-mu-lu-chuang-jian-mapper-mu-lu-bing-chuang-jian-usermapper-xml-wen-jian">3. 在resource目录创建mapper目录并创建UserMapper.xml文件</span><a href="#3-zai-resource-mu-lu-chuang-jian-mapper-mu-lu-bing-chuang-jian-usermapper-xml-wen-jian" class="header-anchor">#</a></h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper
+        PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+&lt;mapper namespace=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;
+    &lt;select id=&quot;selectUser&quot; resultType=&quot;com.ychy.mybatis.dao.User&quot;&gt;
+        select * from User where id = #&#123;id&#125;
+    &lt;/select&gt;
+&lt;/mapper&gt;
+</code></pre>
+<blockquote>
+<p>注意：namespace不是必须有这个包，mybatis使用namespace使用更长的限定名来将sql语句隔离开。<br>但是namespace我们都遵循这个规范就好，按照包名加类名来写，这样IDEA有插件可以方便跳转映射关系。见后面：使用正确描述每个语句的参数和返回值的接口UserMapper.java</p>
+</blockquote>
+<h4><span id="4-dan-yuan-ce-shi">4. 单元测试</span><a href="#4-dan-yuan-ce-shi" class="header-anchor">#</a></h4><pre><code class="java">public class MyBatisTest &#123;
+    @Test
+    public void testUserSelectOne() throws Exception&#123;
+        String resource = &quot;mybatis-config.xml&quot;;
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        // 第一种方式 直接调用
+        User user = sqlSession.selectOne(&quot;com.ychy.mybatis.mapper.UserMapper.selectUser&quot;,1);
+        System.out.println(user);
+    &#125;
+&#125;
+</code></pre>
+<blockquote>
+<p>这里sqlSession调用selectOne方法中第一个参数就是UserMapper.xml中namespace+id凭借而成的。<br>第二个参数为要查询的ID</p>
+</blockquote>
+<h4><span id="5-xiang-mu-yi-lai">5.项目依赖</span><a href="#5-xiang-mu-yi-lai" class="header-anchor">#</a></h4><pre><code class="xml">  &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.mybatis&lt;/groupId&gt;
+            &lt;artifactId&gt;mybatis&lt;/artifactId&gt;
+            &lt;version&gt;3.5.3&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;mysql&lt;/groupId&gt;
+            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+            &lt;version&gt;8.0.19&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+            &lt;version&gt;1.18.12&lt;/version&gt;
+            &lt;scope&gt;provided&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+            &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+            &lt;version&gt;$&#123;junit.jupiter.version&#125;&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.junit.platform&lt;/groupId&gt;
+            &lt;artifactId&gt;junit-platform-launcher&lt;/artifactId&gt;
+            &lt;version&gt;1.6.0&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+    &lt;/dependencies&gt;
+</code></pre>
+<h4><span id="6-jie-kou-shi-bian-cheng-shi-yong-zheng-que-miao-shu-mei-ge-yu-ju-de-can-shu-he-fan-hui-zhi-de-jie-kou-gt-usermapper-java">6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</span><a href="#6-jie-kou-shi-bian-cheng-shi-yong-zheng-que-miao-shu-mei-ge-yu-ju-de-can-shu-he-fan-hui-zhi-de-jie-kou-gt-usermapper-java" class="header-anchor">#</a></h4><pre><code class="java">package com.ychy.mybatis.mapper;
+
+import com.ychy.mybatis.dao.User;
+
+public interface UserMapper &#123;
+     User selectUser(int id);
+&#125;
+</code></pre>
+<blockquote>
+<p>为什么可以直接通过UserMapper接口就可以查询User呢？因为Mybatis底层使用了动态代理类。</p>
+</blockquote>
+<h5><span id="dan-yuan-ce-shi-ke-yi-geng-gai-ru-xia">单元测试可以更改如下</span><a href="#dan-yuan-ce-shi-ke-yi-geng-gai-ru-xia" class="header-anchor">#</a></h5><pre><code class="java">public class MyBatisTest &#123;
+    @Test
+    public void testUserSelectOne() throws Exception&#123;
+        String resource = &quot;mybatis-config.xml&quot;;
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        // 第一种方式 直接调用
+// User user = sqlSession.selectOne(&quot;com.ychy.mybatis.mapper.UserMapper.selectUser&quot;,1);
+        // 第二种方式获取UserMapper 第二种方法有很多优势，首先它不依赖于字符串字面值，会更安全一点； 其次，如果你的 IDE 有代码补全功能，那么代码补全可以帮你快速选择已映射的 SQL 语句。
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        User user = userMapper.selectUser(1);
+        System.out.println(user);
+    &#125;
+&#125;
+</code></pre>
+<blockquote>
+<p>这样不仅可以执行更清晰和类型安全的代码，而且还不用担心易错的字符串字面值以及强制类型转换</p>
+</blockquote>
+<h4><span id="7-shi-yong-zhu-jie-de-fang-shi-fang-wen">7. 使用注解的方式访问</span><a href="#7-shi-yong-zhu-jie-de-fang-shi-fang-wen" class="header-anchor">#</a></h4><pre><code class="java">public interface UserMapper &#123;
+     @Select(&quot;SELECT * FROM user WHERE id = #&#123;id&#125;&quot;)
+     User selectUser(int id);
+&#125;
+</code></pre>
+<h5><span id="tong-shi-xu-yao-geng-gai-mybatis-config-xml">同时需要更改mybatis-config.xml</span><a href="#tong-shi-xu-yao-geng-gai-mybatis-config-xml" class="header-anchor">#</a></h5><pre><code class="xml">    &lt;mappers&gt;
+        &lt;!-- 使用xml方式 --&gt;
+&lt;!-- &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt; --&gt;
+        &lt;!-- 使用注解方式方式 --&gt;
+        &lt;mapper class=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;&lt;/mapper&gt;
+    &lt;/mappers&gt;
+</code></pre>
+<blockquote>
+<p>这样可以不用写UserMapper.xml文件，但是需要更改mybatis-config.xml中mappers的内容</p>
+</blockquote>
+<h4><span id="8-zhu-yi-zhu-jie-he-xml-xing-shi-bu-ke-tong-shi-shi-yong-fou-ze-hui-bao-ru-xia-cuo-wu">8.注意：注解和xml形式不可同时使用，否则会报如下错误</span><a href="#8-zhu-yi-zhu-jie-he-xml-xing-shi-bu-ke-tong-shi-shi-yong-fou-ze-hui-bao-ru-xia-cuo-wu" class="header-anchor">#</a></h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: 
+### Error building SqlSession.
+### The error may exist in com/ychy/mybatis/mapper/UserMapper.java (best guess)
+### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)
+</code></pre>
+]]></content>
+  </entry>
+  <entry>
+    <title>Linux exec命令使用</title>
+    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
+<span id="more"></span>
+
+<div class="toc">
+
+<!-- toc -->
+
+<ul>
+<li><a href="#qi-yin">起因</a></li>
+<li><a href="#fork-jian-jie">fork简介</a></li>
+<li><a href="#exec-de-zhi-xing">exec的执行</a></li>
+<li><a href="#zong-jie-exec-he-fork-de-yi-tong">总结：exec和fork的异同</a></li>
+<li><a href="#exec-de-ying-yong">exec的应用</a><ul>
+<li><a href="#exec-zhi-xing-mou-ge-zhi-ling">exec 执行某个指令</a></li>
+<li><a href="#exec-bu-zhi-xing-ming-ling">exec 不执行命令</a></li>
+</ul>
+</li>
+<li><a href="#jie-lun">结论</a></li>
+</ul>
+<!-- tocstop -->
+
+</div>
+
+<h2><span id="qi-yin">起因</span><a href="#qi-yin" class="header-anchor">#</a></h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
+<pre><code>#!/bin/sh
+set -e
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    exec 3&gt;&amp;1
+else
+    exec 3&gt;/dev/null
+fi
+.....
+</code></pre>
+<p>在CentOS Linux release 7.9下查看man手册</p>
+<pre><code>man exec
+</code></pre>
+<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
+<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
+<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
+<h2><span id="fork-jian-jie">fork简介</span><a href="#fork-jian-jie" class="header-anchor">#</a></h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
+<p>fork命令是linux的系统调用，用来创建子进程。</p>
+<blockquote>
+<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
+</blockquote>
+<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
+<h2><span id="exec-de-zhi-xing">exec的执行</span><a href="#exec-de-zhi-xing" class="header-anchor">#</a></h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
+<h2><span id="zong-jie-exec-he-fork-de-yi-tong">总结：exec和fork的异同</span><a href="#zong-jie-exec-he-fork-de-yi-tong" class="header-anchor">#</a></h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
+<h2><span id="exec-de-ying-yong">exec的应用</span><a href="#exec-de-ying-yong" class="header-anchor">#</a></h2><h3><span id="exec-zhi-xing-mou-ge-zhi-ling">exec 执行某个指令</span><a href="#exec-zhi-xing-mou-ge-zhi-ling" class="header-anchor">#</a></h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
+<h3><span id="exec-bu-zhi-xing-ming-ling">exec 不执行命令</span><a href="#exec-bu-zhi-xing-ming-ling" class="header-anchor">#</a></h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
+<h2><span id="jie-lun">结论</span><a href="#jie-lun" class="header-anchor">#</a></h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
+<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
+    exec 3&gt;&amp;1
+else
+    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
+    exec 3&gt;/dev/null
+fi
+</code></pre>
+<blockquote>
+<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
+</blockquote>
+<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>RabbitMQ-Federation Plugin使用示例</title>
+    <url>/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</url>
+    <content><![CDATA[<p>本文采用docker环境来做Federation Plugin配置的流程。</p>
+<span id="more"></span>
+
+<h1><span id="ji-chu-huan-jing-zhun-bei">基础环境准备</span><a href="#ji-chu-huan-jing-zhun-bei" class="header-anchor">#</a></h1><h2><span id="ji-chu-wang-luo">基础网络</span><a href="#ji-chu-wang-luo" class="header-anchor">#</a></h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>ip</th>
+<th>操作系统</th>
+<th>mq版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rabbitmq</td>
+<td>172.21.0.2</td>
+<td>centos 8</td>
+<td>3.x</td>
+</tr>
+<tr>
+<td>rabbitmq-upstream</td>
+<td>172.21.0.3</td>
+<td>centos 8</td>
+<td>3.x</td>
+</tr>
+</tbody></table>
+<h2><span id="zi-yong-docker-compose-jing-xiang">自用docker-compose镜像</span><a href="#zi-yong-docker-compose-jing-xiang" class="header-anchor">#</a></h2><pre><code>version: &#39;3&#39;
+
+services:
+  rabbitmq:
+    # 管理界面 guest/guest
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: my-rabbit
+    volumes:
+      - ./rabbitmq/conf/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia
+    ports:
+      - &#39;5672:5672&#39;
+      - &#39;15672:15672&#39;
+    networks:
+      - rabbitmq-network
+
+  rabbitmq-upstream:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-upstream
+    hostname: my-rabbit-upstream
+    volumes:
+      - ./rabbitmq/conf-upstream/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./rabbitmq/data-upstream:/var/lib/rabbitmq/mnesia
+    ports:
+      - &#39;5673:5672&#39;
+      - &#39;15673:15672&#39;
+    networks:
+      - rabbitmq-network
+
+networks:
+  rabbitmq-network:
+</code></pre>
+<h2><span id="yun-xing-docker-compose">运行docker-compose</span><a href="#yun-xing-docker-compose" class="header-anchor">#</a></h2><pre><code>docker-compose up -d
+</code></pre>
+<h2><span id="jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian">进入两个容器分别执行加载federation插件</span><a href="#jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian" class="header-anchor">#</a></h2><pre><code># 进入rabbitmq
+docker-compose exec rabbitmq bash
+rabbitmq-plugins enable rabbitmq_federation
+rabbitmq-plugins enable rabbitmq_federation_management
+# 进入rabbitmq-upstream
+docker-compose exec rabbitmq-upstream bash
+rabbitmq-plugins enable rabbitmq_federation
+rabbitmq-plugins enable rabbitmq_federation_management
+</code></pre>
+<h2><span id="cha-kan-rong-qi-ip">查看容器ip</span><a href="#cha-kan-rong-qi-ip" class="header-anchor">#</a></h2><pre><code>ifconfig
+</code></pre>
+<p>当前我的两个容器ip如下<br>|名称|ip|<br>|—|—|<br>|rabbitmq|172.21.0.3|<br>|rabbitmq-upstream|172.21.0.2|</p>
+<h2><span id="zai-rabbitmq-rong-qi-she-zhi-upstream">在rabbitmq容器设置upstream</span><a href="#zai-rabbitmq-rong-qi-she-zhi-upstream" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
+docker-compose exec rabbitmq bash
+rabbitmqctl set_parameter federation-upstream my-upstream \
+&#39;&#123;&quot;uri&quot;:&quot;amqp://guest:guest@172.21.0.2:5672&quot;,&quot;expires&quot;:3600000&#125;&#39;
+</code></pre>
+<p>设置好后ui界面会显示出对应的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/1.png"></p>
+<h2><span id="zai-rabbitmq-rong-qi-she-zhi-policy">在rabbitmq容器设置policy</span><a href="#zai-rabbitmq-rong-qi-she-zhi-policy" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
+docker-compose exec rabbitmq bash
+rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;
+</code></pre>
+<p>执行后可以查看federation对应UI界面会将本地的exchange与federate-me policy绑定<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/2.png"></p>
+<p>同时federation-upstream容器对应UI界面会有对应的绑定关系展示<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/3.png"></p>
+<h2><span id="dai-ma-ce-shi-python">代码测试（python）</span><a href="#dai-ma-ce-shi-python" class="header-anchor">#</a></h2><h3><span id="sheng-chan-zhe-dai-ma">生产者代码</span><a href="#sheng-chan-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq-upstream用于发送消息。</p>
+<pre><code>import pika
+import sys
+import os
+
+def main():
+    # 创建链接
+    connection = pika.BlockingConnection(pika.ConnectionParameters(&#39;localhost&#39;, &#39;5673&#39;))
+    channel = connection.channel()
+    # 声明一个本地upstream消息的队列
+    channel.queue_declare(queue=&#39;receive-upstream&#39;)
+    # 发送消息至exchange
+    channel.basic_publish(exchange=&#39;amq.direct&#39;, routing_key=&#39;receive-upstream&#39;, body=&#39;Hello World!&#39;)
+    print(&quot;[x] Sent &#39;Hello World!&#39;&quot;)
+    connection.close()
+
+if __name__ == &#39;__main__&#39;:
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(&#39;Interrupted&#39;)
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
+</code></pre>
+<h3><span id="xiao-fei-zhe-dai-ma">消费者代码</span><a href="#xiao-fei-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq用于接收upstream的消息。</p>
+<pre><code>import pika
+import os
+import sys
+import time
+
+def main():
+    # 创建链接
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=&#39;localhost&#39;, port=&#39;5672&#39;))
+    channel = connection.channel()
+    # 声明一个接受upstream消息的队列
+    channel.queue_declare(queue=&#39;receive-upstream&#39;)
+    # 绑定队列至接受upstream-exchange的一个exchange上
+    channel.queue_bind(&#39;receive-upstream&#39;, &#39;amq.direct&#39;)
+
+    # 接收消息，定义callback函数，接收消息回调该函数
+    def callback(ch, method, properties, body):
+        print(&quot;[x] Received %r &quot; % body)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    channel.basic_consume(queue=&#39;receive-upstream&#39;, auto_ack=False, on_message_callback=callback)
+    print(&#39; [*] Waiting for messages. To exit press CTRL+C&#39;)
+    channel.start_consuming()
+
+if __name__ == &#39;__main__&#39;:
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(&#39;Interrupted&#39;)
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
+</code></pre>
+<h3><span id="yun-xing-jie-tu">运行截图</span><a href="#yun-xing-jie-tu" class="header-anchor">#</a></h3><p><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/4.png"><br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/5.png"></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>RabbitMQ-Federation Plugin概述</title>
+    <url>/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<p>最进在研究联邦学习框架FATE，FATE的部署方式有多种，其中有一种部署方式是基于spark来做分布式计算，并且使用Rabbitmq跨节点数据传输的（Federation Plug）。<br>文件简单介绍Rabbitmq的插件Federation Plugin的基本使用流程。</p>
+<span id="more"></span>
+
+<h1><span id="jian-shu-federationplugin">简述FederationPlugin</span><a href="#jian-shu-federationplugin" class="header-anchor">#</a></h1><p>FederationPlugin可以简单理解为不需要建立集群就可以在多个MQ服务的做消息传输。这样不建立集群就可以在不同的网络域下作数据传输。<br>如下图，可以基于队列消息传输，也可以基于exchange传输。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/1.png"></p>
+<h1><span id="ji-chu-shi-yong-liu-cheng">基础使用流程</span><a href="#ji-chu-shi-yong-liu-cheng" class="header-anchor">#</a></h1><h3><span id="1-kai-qi-federation-cha-jian">1. 开启Federation插件</span><a href="#1-kai-qi-federation-cha-jian" class="header-anchor">#</a></h3><p>启用rabbitmq_federation插件，可选启用rabbitmq_federation_management插件，用于控制台界面操作。</p>
+<pre><code>rabbitmq-plugins enable rabbitmq_federation
+rabbitmq-plugins enable rabbitmq_federation_management
+</code></pre>
+<h3><span id="2-she-zhi-upstream">2. 设置upstream</span><a href="#2-she-zhi-upstream" class="header-anchor">#</a></h3><p>upstream就是一个上游服务，假设现在有节点A和节点B两方，B想要消费A中的队列，则A就是B的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/2.png"></p>
+<p>下述server-name就是上图172.xx.xx.xx所在的broker。<br>server-name格式具体请产品AMQP-URL：<a href="https://www.rabbitmq.com/uri-spec.html">https://www.rabbitmq.com/uri-spec.html</a><br>简单举例：<br>|URI|Username|Passowd|Host|Port|Vhost|<br>|—|—|—|—|—|—|<br>|amqp://user:pass@host:10000/vhost|”user”|”pass”|”host”|10000|”vhost”|<br>|amqp://user%61:%61pass@ho%61st:10000/v%2fhost|”usera”|”apass”|”hoast”|10000|”v/host”|<br>|amqp://host|||”host”|||</p>
+<p>下述代码定义了一个名为my-upstream的federation-upstream，指定uri和expires，expires为消息的过期时间单位ms。</p>
+<pre><code>rabbitmqctl set_parameter federation-upstream my-upstream \
+&#39;&#123;&quot;uri&quot;:&quot;amqp://server-name&quot;,&quot;expires&quot;:3600000&#125;&#39;
+</code></pre>
+<blockquote>
+<p>本文只展示了命令行设置方式，额外方式如：http、web UI等方式请参考官方文档<br><a href="https://www.rabbitmq.com/federation.html">https://www.rabbitmq.com/federation.html</a></p>
+</blockquote>
+<h3><span id="3-she-zhi-policy">3. 设置policy</span><a href="#3-she-zhi-policy" class="header-anchor">#</a></h3><p>policy可以理解为一个运行时配置，可以再mq运行时设置更改相关配置信息，具体参考官方文档：<a href="https://www.rabbitmq.com/parameters.html%E3%80%82">https://www.rabbitmq.com/parameters.html。</a><br>下述设置了一个policy，federate-me为自定义的名称，”^amq.“是正则表达式，用来匹配对应的exchanges，federation-upstream-set:”all”表示匹配所有的upstream。<br>概括下来就是，匹配所有amq.开头的exchange用来接收upstream消息</p>
+<pre><code>rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;
+</code></pre>
+<h3><span id="4-xie-dai-ma-ce-shi">4. 写代码测试</span><a href="#4-xie-dai-ma-ce-shi" class="header-anchor">#</a></h3><p>上述正常配置后，假设有AB两个节点，B节点设置upstream为A，则A的所有消息都将被B接收。</p>
+<blockquote>
+<p>具体示例参考后续文章【RabbitMQ-Federation Plugin使用示例】</p>
+</blockquote>
+]]></content>
+  </entry>
+</search>
