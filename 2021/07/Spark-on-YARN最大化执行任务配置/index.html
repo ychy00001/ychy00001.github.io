@@ -20,26 +20,20 @@
     var CONFIG = {"hostname":"ychy666.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="本文采用docker环境来做Federation Plugin配置的流程。 基础环境准备基础网络   名称 ip 操作系统 mq版本    rabbitmq 172.21.0.2 centos 8 3.x   rabbitmq-upstream 172.21.0.3 centos 8 3.x">
+  <meta name="description" content="概览本文简述spark调优历程，java服务端研发一枚，被要求搭建hadoop-spark环境运行机器学习。搭建完成后基本使用默认的配置文件执行任务，测试使用500MB的数据来运行逻辑回归，执行时间非常长，为了缩短任务运行时间，开始了无止尽的摸索参数配置。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="RabbitMQ-Federation Plugin使用示例">
-<meta property="og:url" content="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/index.html">
+<meta property="og:title" content="Spark on YARN最大化执行任务配置">
+<meta property="og:url" content="http://ychy666.com/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/index.html">
 <meta property="og:site_name" content="远方小镇">
-<meta property="og:description" content="本文采用docker环境来做Federation Plugin配置的流程。 基础环境准备基础网络   名称 ip 操作系统 mq版本    rabbitmq 172.21.0.2 centos 8 3.x   rabbitmq-upstream 172.21.0.3 centos 8 3.x">
+<meta property="og:description" content="概览本文简述spark调优历程，java服务端研发一枚，被要求搭建hadoop-spark环境运行机器学习。搭建完成后基本使用默认的配置文件执行任务，测试使用500MB的数据来运行逻辑回归，执行时间非常长，为了缩短任务运行时间，开始了无止尽的摸索参数配置。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/1.png">
-<meta property="og:image" content="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/2.png">
-<meta property="og:image" content="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/3.png">
-<meta property="og:image" content="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/4.png">
-<meta property="og:image" content="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/5.png">
-<meta property="article:published_time" content="2021-06-28T12:14:10.000Z">
-<meta property="article:modified_time" content="2021-07-30T04:01:24.217Z">
+<meta property="article:published_time" content="2021-07-30T03:57:49.000Z">
+<meta property="article:modified_time" content="2021-07-30T04:12:44.680Z">
 <meta property="article:author" content="Rain">
 <meta property="article:tag" content="IT,JAVA,架构">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/1.png">
 
-<link rel="canonical" href="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/">
+<link rel="canonical" href="http://ychy666.com/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/">
 
 
 <script id="page-configurations">
@@ -52,7 +46,7 @@
   };
 </script>
 
-  <title>RabbitMQ-Federation Plugin使用示例 | 远方小镇</title>
+  <title>Spark on YARN最大化执行任务配置 | 远方小镇</title>
   
 
 
@@ -195,7 +189,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://ychy666.com/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/">
+    <link itemprop="mainEntityOfPage" href="http://ychy666.com/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -208,7 +202,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          RabbitMQ-Federation Plugin使用示例
+          Spark on YARN最大化执行任务配置
         </h1>
 
         <div class="post-meta">
@@ -217,19 +211,13 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-06-28 20:14:10" itemprop="dateCreated datePublished" datetime="2021-06-28T20:14:10+08:00">2021-06-28</time>
+              <time title="创建时间：2021-07-30 11:57:49 / 修改时间：12:12:44" itemprop="dateCreated datePublished" datetime="2021-07-30T11:57:49+08:00">2021-07-30</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-30 12:01:24" itemprop="dateModified" datetime="2021-07-30T12:01:24+08:00">2021-07-30</time>
-              </span>
 
           
-            <span id="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/" class="post-meta-item leancloud_visitors" data-flag-title="RabbitMQ-Federation Plugin使用示例" title="阅读次数">
+            <span id="/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/" class="post-meta-item leancloud_visitors" data-flag-title="Spark on YARN最大化执行任务配置" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -251,8 +239,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/" itemprop="commentCount"></span>
+    <a title="valine" href="/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -267,150 +255,94 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>本文采用docker环境来做Federation Plugin配置的流程。</p>
-<h1><span id="ji-chu-huan-jing-zhun-bei">基础环境准备</span><a href="#ji-chu-huan-jing-zhun-bei" class="header-anchor">#</a></h1><h2><span id="ji-chu-wang-luo">基础网络</span><a href="#ji-chu-wang-luo" class="header-anchor">#</a></h2><table>
-<thead>
-<tr>
-<th>名称</th>
-<th>ip</th>
-<th>操作系统</th>
-<th>mq版本</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>rabbitmq</td>
-<td>172.21.0.2</td>
-<td>centos 8</td>
-<td>3.x</td>
-</tr>
-<tr>
-<td>rabbitmq-upstream</td>
-<td>172.21.0.3</td>
-<td>centos 8</td>
-<td>3.x</td>
-</tr>
-</tbody></table>
+        <h1><span id="gai-lan">概览</span><a href="#gai-lan" class="header-anchor">#</a></h1><p>本文简述spark调优历程，java服务端研发一枚，被要求搭建hadoop-spark环境运行机器学习。搭建完成后基本使用默认的配置文件执行任务，测试使用500MB的数据来运行逻辑回归，执行时间非常长，为了缩短任务运行时间，开始了无止尽的摸索参数配置。</p>
 <span id="more"></span>
-<h2><span id="zi-yong-docker-compose-jing-xiang">自用docker-compose镜像</span><a href="#zi-yong-docker-compose-jing-xiang" class="header-anchor">#</a></h2><pre><code>version: &#39;3&#39;
-
-services:
-  rabbitmq:
-    # 管理界面 guest/guest
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    hostname: my-rabbit
-    volumes:
-      - ./rabbitmq/conf/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia
-    ports:
-      - &#39;5672:5672&#39;
-      - &#39;15672:15672&#39;
-    networks:
-      - rabbitmq-network
-
-  rabbitmq-upstream:
-    image: rabbitmq:3-management
-    container_name: rabbitmq-upstream
-    hostname: my-rabbit-upstream
-    volumes:
-      - ./rabbitmq/conf-upstream/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ./rabbitmq/data-upstream:/var/lib/rabbitmq/mnesia
-    ports:
-      - &#39;5673:5672&#39;
-      - &#39;15673:15672&#39;
-    networks:
-      - rabbitmq-network
-
-networks:
-  rabbitmq-network:
+<h3><span id="zhu-yi">注意</span><a href="#zhu-yi" class="header-anchor">#</a></h3><ul>
+<li>本文采用三台4H8G机器为测试机器，配置只是为了让单个任务最大化使用系统资源。</li>
+<li>本文配置文件内容仅供参考，需要根据实际机器资源和任务使用情况来自行设置</li>
+<li>本文描述系统的CPU和内存资源时简写，示例：4H8G表示4个cpu核数，8GB的内存</li>
+</ul>
+<h1><span id="yarn-ji-chu-pei-zhi">yarn基础配置</span><a href="#yarn-ji-chu-pei-zhi" class="header-anchor">#</a></h1><p>spark是运行在yarn中的，所以先从yarn的配置文件下手，单台服务器为4H8G，预留1H1G给操作系统，剩下的全部配置给yarn使用。因为当前只需要一个任务最大化使用系统资源，所以最大可分配内存可以跟节点总内存一致。</p>
+<h3><span id="nei-cun-xiang-guan-yarn-site-xml">内存相关（yarn-site.xml）</span><a href="#nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h3><pre><code class="xml">   &lt;property&gt;  
+        &lt;name&gt;yarn.nodemanager.resource.memory-mb&lt;/name&gt;
+        &lt;value&gt;7168&lt;/value&gt;
+        &lt;description&gt;当前节点可分配的总内存&lt;/description&gt;
+   &lt;/property&gt;
+   &lt;property&gt; 
+        &lt;name&gt;yarn.scheduler.minimum-allocation-mb&lt;/name&gt;
+        &lt;value&gt;1024&lt;/value&gt;
+        &lt;description&gt;最小可分配容器内存&lt;/description&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.scheduler.maximum-allocation-mb&lt;/name&gt;
+        &lt;value&gt;7168&lt;/value&gt;
+        &lt;description&gt;最大可分配容器内存&lt;/description&gt;
+    &lt;/property&gt;
 </code></pre>
-<h2><span id="yun-xing-docker-compose">运行docker-compose</span><a href="#yun-xing-docker-compose" class="header-anchor">#</a></h2><pre><code>docker-compose up -d
+<h3><span id="xu-ni-nei-cun-xiang-guan-yarn-site-xml">虚拟内存相关（yarn-site.xml）</span><a href="#xu-ni-nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h3><p>关闭虚拟内存的检查，在执行任务的时候如果分配虚拟内存超出了虚拟内存可用值则会杀掉容器。</p>
+<pre><code class="xml">&lt;property&gt;
+        &lt;name&gt;yarn.nodemanager.vmem-check-enabled&lt;/name&gt;
+        &lt;value&gt;false&lt;/value&gt;
+        &lt;description&gt;默认为true，当前关闭虚拟内存检查&lt;/description&gt;
+&lt;/property&gt;
+&lt;property&gt;
+        &lt;name&gt;yarn.nodemanager.vmem-pmem-ratio&lt;/name&gt;
+        &lt;value&gt;2.1&lt;/value&gt;
+        &lt;description&gt;如果不关闭虚拟内存检查，并且任务运行需要占用大量内存时可以将改比率调高&lt;/description&gt;
+&lt;/property&gt;
 </code></pre>
-<h2><span id="jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian">进入两个容器分别执行加载federation插件</span><a href="#jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian" class="header-anchor">#</a></h2><pre><code># 进入rabbitmq
-docker-compose exec rabbitmq bash
-rabbitmq-plugins enable rabbitmq_federation
-rabbitmq-plugins enable rabbitmq_federation_management
-# 进入rabbitmq-upstream
-docker-compose exec rabbitmq-upstream bash
-rabbitmq-plugins enable rabbitmq_federation
-rabbitmq-plugins enable rabbitmq_federation_management
+<h3><span id="cpu-xiang-guan-yarn-site-xml">cpu相关（yarn-site.xml）</span><a href="#cpu-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h3><p>cpu和基础设置跟内存一样，4H8G的服务器。预留一个CPU给操作系统以及任务调度运行。其他全部指定给yarn来使用。</p>
+<pre><code class="xml">    &lt;property&gt;
+        &lt;name&gt;yarn.nodemanager.resource.cpu-vcores&lt;/name&gt;
+        &lt;value&gt;7&lt;/value&gt;
+        &lt;description&gt;当前节点可分配的总CPU&lt;/description&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.scheduler.minimum-allocation-vcores&lt;/name&gt;
+        &lt;value&gt;1&lt;/value&gt;
+        &lt;description&gt;最小可分配容器CPU&lt;/description&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.scheduler.maximum-allocation-vcores&lt;/name&gt;
+        &lt;value&gt;7&lt;/value&gt;
+        &lt;description&gt;最大可分配容器CPU&lt;/description&gt;
+    &lt;/property&gt;
 </code></pre>
-<h2><span id="cha-kan-rong-qi-ip">查看容器ip</span><a href="#cha-kan-rong-qi-ip" class="header-anchor">#</a></h2><pre><code>ifconfig
+<h3><span id="qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml">其他资源相关配置（yarn-site.xml）</span><a href="#qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml" class="header-anchor">#</a></h3><p>下面配置用来设置调度器使用的资源比较计算器，默认资源计算器使用：org.apache.hadoop.yarn.util.resource.DefaultResourseCalculator，该资源计算器只根据内存来计算资源，在yarn的UI界面中也不会显示cpu分配的内容，采用DominantResourceCalculator可以多维度计算资源。</p>
+<pre><code class="xml">&lt;property&gt;
+        &lt;name&gt;yarn.scheduler.capacity.resource-calculator&lt;/name&gt;
+        &lt;value&gt;org.apache.hadoop.yarn.util.resource.DominantResourceCalculator&lt;/value&gt;
+&lt;/property&gt;
 </code></pre>
-<p>当前我的两个容器ip如下<br>|名称|ip|<br>|—|—|<br>|rabbitmq|172.21.0.3|<br>|rabbitmq-upstream|172.21.0.2|</p>
-<h2><span id="zai-rabbitmq-rong-qi-she-zhi-upstream">在rabbitmq容器设置upstream</span><a href="#zai-rabbitmq-rong-qi-she-zhi-upstream" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
-docker-compose exec rabbitmq bash
-rabbitmqctl set_parameter federation-upstream my-upstream \
-&#39;&#123;&quot;uri&quot;:&quot;amqp://guest:guest@172.21.0.2:5672&quot;,&quot;expires&quot;:3600000&#125;&#39;
+<h3><span id="diao-du-qi-pei-zhi-capacity-scheduler-xml">调度器配置（capacity-scheduler.xml）</span><a href="#diao-du-qi-pei-zhi-capacity-scheduler-xml" class="header-anchor">#</a></h3><p>该配置项较多，至列特殊几个配置供参考，之前碰到一个场景是我想在当前集群同时运行两个任务，每个任务占总资源的1/2，但是总是后面一个任务在padding中，申请不到资源。所以重点可以关注下面配置是否合理</p>
+<pre><code>&lt;property&gt;xml
+    &lt;name&gt;yarn.scheduler.capacity.maximum-am-resource-percent&lt;/name&gt;
+    &lt;value&gt;1&lt;/value&gt;
+    &lt;description&gt;
+      运行任务可占用资源的最大百分比，如果该值不是100%则无法使用集群的全部资源并行执行任务
+    &lt;/description&gt;
+  &lt;/property&gt;
+  &lt;property&gt;
+    &lt;name&gt;yarn.scheduler.capacity.root.default.maximum-capacity&lt;/name&gt;
+    &lt;value&gt;100&lt;/value&gt;
+    &lt;description&gt;
+       给root用户（我当前使用的用户）指定最大队列容量
+    &lt;/description&gt;
+  &lt;/property&gt;
 </code></pre>
-<p>设置好后ui界面会显示出对应的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/1.png"></p>
-<h2><span id="zai-rabbitmq-rong-qi-she-zhi-policy">在rabbitmq容器设置policy</span><a href="#zai-rabbitmq-rong-qi-she-zhi-policy" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
-docker-compose exec rabbitmq bash
-rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;
+<h1><span id="spark-ji-chu-pei-zhi">spark基础配置</span><a href="#spark-ji-chu-pei-zhi" class="header-anchor">#</a></h1><p>为了让运行的任务使用所有的资源，先计算所有可用资源有多少，当前yarn可分配的一共是3台服务器每台服务器3H7G内存，总计9H21G。</p>
+<ul>
+<li>假设分配4个容器执行任务，1个容器为ApplicationMaster用作spark资源调度。（–num-executors=4）</li>
+<li>ApplicationMaster占用1H1G，剩余8G20G留给任务执行，每个容器可以使用2H5G。（  –executor-cores=2）</li>
+<li>5G内容中需要有7%（默认值）的spark.executor.memoryOverhead，则5G*0.07=358.4MB，可以向上取整359MB，则5G-359MB=4761MB（–executor-memory=4761m）</li>
+</ul>
+<p>总结下来可以在执行任务时如下设置：</p>
+<pre><code class="shell">./bin/spark-submit \
+  --master yarn \
+  --num-executors 4 \
+  --executor-memory 4761m \
+  --executor-cores 2 
 </code></pre>
-<p>执行后可以查看federation对应UI界面会将本地的exchange与federate-me policy绑定<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/2.png"></p>
-<p>同时federation-upstream容器对应UI界面会有对应的绑定关系展示<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/3.png"></p>
-<h2><span id="dai-ma-ce-shi-python">代码测试（python）</span><a href="#dai-ma-ce-shi-python" class="header-anchor">#</a></h2><h3><span id="sheng-chan-zhe-dai-ma">生产者代码</span><a href="#sheng-chan-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq-upstream用于发送消息。</p>
-<pre><code>import pika
-import sys
-import os
-
-def main():
-    # 创建链接
-    connection = pika.BlockingConnection(pika.ConnectionParameters(&#39;localhost&#39;, &#39;5673&#39;))
-    channel = connection.channel()
-    # 声明一个本地upstream消息的队列
-    channel.queue_declare(queue=&#39;receive-upstream&#39;)
-    # 发送消息至exchange
-    channel.basic_publish(exchange=&#39;amq.direct&#39;, routing_key=&#39;receive-upstream&#39;, body=&#39;Hello World!&#39;)
-    print(&quot;[x] Sent &#39;Hello World!&#39;&quot;)
-    connection.close()
-
-if __name__ == &#39;__main__&#39;:
-    try:
-        main()
-    except KeyboardInterrupt:
-        print(&#39;Interrupted&#39;)
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
-</code></pre>
-<h3><span id="xiao-fei-zhe-dai-ma">消费者代码</span><a href="#xiao-fei-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq用于接收upstream的消息。</p>
-<pre><code>import pika
-import os
-import sys
-import time
-
-def main():
-    # 创建链接
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=&#39;localhost&#39;, port=&#39;5672&#39;))
-    channel = connection.channel()
-    # 声明一个接受upstream消息的队列
-    channel.queue_declare(queue=&#39;receive-upstream&#39;)
-    # 绑定队列至接受upstream-exchange的一个exchange上
-    channel.queue_bind(&#39;receive-upstream&#39;, &#39;amq.direct&#39;)
-
-    # 接收消息，定义callback函数，接收消息回调该函数
-    def callback(ch, method, properties, body):
-        print(&quot;[x] Received %r &quot; % body)
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-
-    channel.basic_consume(queue=&#39;receive-upstream&#39;, auto_ack=False, on_message_callback=callback)
-    print(&#39; [*] Waiting for messages. To exit press CTRL+C&#39;)
-    channel.start_consuming()
-
-if __name__ == &#39;__main__&#39;:
-    try:
-        main()
-    except KeyboardInterrupt:
-        print(&#39;Interrupted&#39;)
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
-</code></pre>
-<h3><span id="yun-xing-jie-tu">运行截图</span><a href="#yun-xing-jie-tu" class="header-anchor">#</a></h3><p><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/4.png"><br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/5.png"></p>
 
     </div>
 
@@ -426,13 +358,10 @@ if __name__ == &#39;__main__&#39;:
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/" rel="prev" title="RabbitMQ-Federation Plugin概述">
-      <i class="fa fa-chevron-left"></i> RabbitMQ-Federation Plugin概述
+    <a href="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/" rel="prev" title="RabbitMQ-Federation Plugin使用示例">
+      <i class="fa fa-chevron-left"></i> RabbitMQ-Federation Plugin使用示例
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/" rel="next" title="Spark on YARN最大化执行任务配置">
-      Spark on YARN最大化执行任务配置 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -492,7 +421,7 @@ if __name__ == &#39;__main__&#39;:
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">基础环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.1.</span> <span class="nav-text">基础网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.2.</span> <span class="nav-text">自用docker-compose镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.3.</span> <span class="nav-text">运行docker-compose</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.4.</span> <span class="nav-text">进入两个容器分别执行加载federation插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.5.</span> <span class="nav-text">查看容器ip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.6.</span> <span class="nav-text">在rabbitmq容器设置upstream</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.7.</span> <span class="nav-text">在rabbitmq容器设置policy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.8.</span> <span class="nav-text">代码测试（python）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.8.1.</span> <span class="nav-text">生产者代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.8.2.</span> <span class="nav-text">消费者代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.8.3.</span> <span class="nav-text">运行截图</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">概览</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.0.1.</span> <span class="nav-text">注意</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">yarn基础配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.1.</span> <span class="nav-text">内存相关（yarn-site.xml）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.2.</span> <span class="nav-text">虚拟内存相关（yarn-site.xml）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.3.</span> <span class="nav-text">cpu相关（yarn-site.xml）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.4.</span> <span class="nav-text">其他资源相关配置（yarn-site.xml）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.5.</span> <span class="nav-text">调度器配置（capacity-scheduler.xml）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">spark基础配置</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
