@@ -1,57 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Linux exec命令使用</title>
-    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
-<h2><span id="qi-yin">起因</span><a href="#qi-yin" class="header-anchor">#</a></h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
-<pre><code>#!/bin/sh
-set -e
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    exec 3&gt;&amp;1
-else
-    exec 3&gt;/dev/null
-fi
-.....
-</code></pre>
-<span id="more"></span>
-<p>在CentOS Linux release 7.9下查看man手册</p>
-<pre><code>man exec
-</code></pre>
-<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
-<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
-<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
-<h2><span id="fork-jian-jie">fork简介</span><a href="#fork-jian-jie" class="header-anchor">#</a></h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
-<p>fork命令是linux的系统调用，用来创建子进程。</p>
-<blockquote>
-<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
-</blockquote>
-<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
-<h2><span id="exec-de-zhi-xing">exec的执行</span><a href="#exec-de-zhi-xing" class="header-anchor">#</a></h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
-<h2><span id="zong-jie-exec-he-fork-de-yi-tong">总结：exec和fork的异同</span><a href="#zong-jie-exec-he-fork-de-yi-tong" class="header-anchor">#</a></h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
-<h2><span id="exec-de-ying-yong">exec的应用</span><a href="#exec-de-ying-yong" class="header-anchor">#</a></h2><h3><span id="exec-zhi-xing-mou-ge-zhi-ling">exec 执行某个指令</span><a href="#exec-zhi-xing-mou-ge-zhi-ling" class="header-anchor">#</a></h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
-<h3><span id="exec-bu-zhi-xing-ming-ling">exec 不执行命令</span><a href="#exec-bu-zhi-xing-ming-ling" class="header-anchor">#</a></h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
-<h2><span id="jie-lun">结论</span><a href="#jie-lun" class="header-anchor">#</a></h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
-<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
-    exec 3&gt;&amp;1
-else
-    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
-    exec 3&gt;/dev/null
-fi
-</code></pre>
-<blockquote>
-<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
-</blockquote>
-<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
-]]></content>
-  </entry>
-  <entry>
     <title>认识MyBatis</title>
     <url>/2021/06/%E8%AE%A4%E8%AF%86MyBatis/</url>
     <content><![CDATA[<p>MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。</p>
-<h1><span id="yi-jian-jie">一、简介</span><a href="#yi-jian-jie" class="header-anchor">#</a></h1><p>官网的简介写的比较好，建议大家直接去官网查看。<br><a href="https://mybatis.org/mybatis-3/zh/index.html">https://mybatis.org/mybatis-3/zh/index.html</a><br>简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。</p>
+<h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p>官网的简介写的比较好，建议大家直接去官网查看。<br><a href="https://mybatis.org/mybatis-3/zh/index.html">https://mybatis.org/mybatis-3/zh/index.html</a><br>简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。</p>
 <span id="more"></span>
 <blockquote>
 <p>其他ORM框架</p>
@@ -61,7 +14,7 @@ fi
 <li>JdbcTemplate</li>
 <li>Hibernate </li>
 </ul>
-<h1><span id="er-jian-dan-shi-yong">二、简单使用</span><a href="#er-jian-dan-shi-yong" class="header-anchor">#</a></h1><h4><span id="1-chuang-jian-maven-xiang-mu-shi-yong-idea-ke-yi-zhi-jie-chuang-jian">1. 创建maven项目 使用IDEA可以直接创建</span><a href="#1-chuang-jian-maven-xiang-mu-shi-yong-idea-ke-yi-zhi-jie-chuang-jian" class="header-anchor">#</a></h4><h4><span id="2-zai-resource-mu-lu-chuang-jian-mybatis-config-xml-wen-jian">2. 在resource目录创建mybatis-config.xml文件</span><a href="#2-zai-resource-mu-lu-chuang-jian-mybatis-config-xml-wen-jian" class="header-anchor">#</a></h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+<h1 id="二、简单使用"><a href="#二、简单使用" class="headerlink" title="二、简单使用"></a>二、简单使用</h1><h4 id="1-创建maven项目-使用IDEA可以直接创建"><a href="#1-创建maven项目-使用IDEA可以直接创建" class="headerlink" title="1. 创建maven项目 使用IDEA可以直接创建"></a>1. 创建maven项目 使用IDEA可以直接创建</h4><h4 id="2-在resource目录创建mybatis-config-xml文件"><a href="#2-在resource目录创建mybatis-config-xml文件" class="headerlink" title="2. 在resource目录创建mybatis-config.xml文件"></a>2. 在resource目录创建mybatis-config.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
 &lt;!DOCTYPE configuration
         PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
         &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
@@ -85,7 +38,7 @@ fi
 <blockquote>
 <p>注意 代码中${host}/${database} ${username}  ${password} 需要替换成自己对应的真实账号密码及链接路径</p>
 </blockquote>
-<h4><span id="3-zai-resource-mu-lu-chuang-jian-mapper-mu-lu-bing-chuang-jian-usermapper-xml-wen-jian">3. 在resource目录创建mapper目录并创建UserMapper.xml文件</span><a href="#3-zai-resource-mu-lu-chuang-jian-mapper-mu-lu-bing-chuang-jian-usermapper-xml-wen-jian" class="header-anchor">#</a></h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+<h4 id="3-在resource目录创建mapper目录并创建UserMapper-xml文件"><a href="#3-在resource目录创建mapper目录并创建UserMapper-xml文件" class="headerlink" title="3. 在resource目录创建mapper目录并创建UserMapper.xml文件"></a>3. 在resource目录创建mapper目录并创建UserMapper.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
 &lt;!DOCTYPE mapper
         PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
         &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
@@ -98,7 +51,7 @@ fi
 <blockquote>
 <p>注意：namespace不是必须有这个包，mybatis使用namespace使用更长的限定名来将sql语句隔离开。<br>但是namespace我们都遵循这个规范就好，按照包名加类名来写，这样IDEA有插件可以方便跳转映射关系。见后面：使用正确描述每个语句的参数和返回值的接口UserMapper.java</p>
 </blockquote>
-<h4><span id="4-dan-yuan-ce-shi">4. 单元测试</span><a href="#4-dan-yuan-ce-shi" class="header-anchor">#</a></h4><pre><code class="java">public class MyBatisTest &#123;
+<h4 id="4-单元测试"><a href="#4-单元测试" class="headerlink" title="4. 单元测试"></a>4. 单元测试</h4><pre><code class="java">public class MyBatisTest &#123;
     @Test
     public void testUserSelectOne() throws Exception&#123;
         String resource = &quot;mybatis-config.xml&quot;;
@@ -114,7 +67,7 @@ fi
 <blockquote>
 <p>这里sqlSession调用selectOne方法中第一个参数就是UserMapper.xml中namespace+id凭借而成的。<br>第二个参数为要查询的ID</p>
 </blockquote>
-<h4><span id="5-xiang-mu-yi-lai">5.项目依赖</span><a href="#5-xiang-mu-yi-lai" class="header-anchor">#</a></h4><pre><code class="xml">  &lt;dependencies&gt;
+<h4 id="5-项目依赖"><a href="#5-项目依赖" class="headerlink" title="5.项目依赖"></a>5.项目依赖</h4><pre><code class="xml">  &lt;dependencies&gt;
         &lt;dependency&gt;
             &lt;groupId&gt;org.mybatis&lt;/groupId&gt;
             &lt;artifactId&gt;mybatis&lt;/artifactId&gt;
@@ -150,7 +103,7 @@ fi
 
     &lt;/dependencies&gt;
 </code></pre>
-<h4><span id="6-jie-kou-shi-bian-cheng-shi-yong-zheng-que-miao-shu-mei-ge-yu-ju-de-can-shu-he-fan-hui-zhi-de-jie-kou-gt-usermapper-java">6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</span><a href="#6-jie-kou-shi-bian-cheng-shi-yong-zheng-que-miao-shu-mei-ge-yu-ju-de-can-shu-he-fan-hui-zhi-de-jie-kou-gt-usermapper-java" class="header-anchor">#</a></h4><pre><code class="java">package com.ychy.mybatis.mapper;
+<h4 id="6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）"><a href="#6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）" class="headerlink" title="6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）"></a>6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</h4><pre><code class="java">package com.ychy.mybatis.mapper;
 
 import com.ychy.mybatis.dao.User;
 
@@ -161,7 +114,7 @@ public interface UserMapper &#123;
 <blockquote>
 <p>为什么可以直接通过UserMapper接口就可以查询User呢？因为Mybatis底层使用了动态代理类。</p>
 </blockquote>
-<h5><span id="dan-yuan-ce-shi-ke-yi-geng-gai-ru-xia">单元测试可以更改如下</span><a href="#dan-yuan-ce-shi-ke-yi-geng-gai-ru-xia" class="header-anchor">#</a></h5><pre><code class="java">public class MyBatisTest &#123;
+<h5 id="单元测试可以更改如下"><a href="#单元测试可以更改如下" class="headerlink" title="单元测试可以更改如下"></a>单元测试可以更改如下</h5><pre><code class="java">public class MyBatisTest &#123;
     @Test
     public void testUserSelectOne() throws Exception&#123;
         String resource = &quot;mybatis-config.xml&quot;;
@@ -180,12 +133,12 @@ public interface UserMapper &#123;
 <blockquote>
 <p>这样不仅可以执行更清晰和类型安全的代码，而且还不用担心易错的字符串字面值以及强制类型转换</p>
 </blockquote>
-<h4><span id="7-shi-yong-zhu-jie-de-fang-shi-fang-wen">7. 使用注解的方式访问</span><a href="#7-shi-yong-zhu-jie-de-fang-shi-fang-wen" class="header-anchor">#</a></h4><pre><code class="java">public interface UserMapper &#123;
+<h4 id="7-使用注解的方式访问"><a href="#7-使用注解的方式访问" class="headerlink" title="7. 使用注解的方式访问"></a>7. 使用注解的方式访问</h4><pre><code class="java">public interface UserMapper &#123;
      @Select(&quot;SELECT * FROM user WHERE id = #&#123;id&#125;&quot;)
      User selectUser(int id);
 &#125;
 </code></pre>
-<h5><span id="tong-shi-xu-yao-geng-gai-mybatis-config-xml">同时需要更改mybatis-config.xml</span><a href="#tong-shi-xu-yao-geng-gai-mybatis-config-xml" class="header-anchor">#</a></h5><pre><code class="xml">    &lt;mappers&gt;
+<h5 id="同时需要更改mybatis-config-xml"><a href="#同时需要更改mybatis-config-xml" class="headerlink" title="同时需要更改mybatis-config.xml"></a>同时需要更改mybatis-config.xml</h5><pre><code class="xml">    &lt;mappers&gt;
         &lt;!-- 使用xml方式 --&gt;
 &lt;!-- &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt; --&gt;
         &lt;!-- 使用注解方式方式 --&gt;
@@ -195,7 +148,7 @@ public interface UserMapper &#123;
 <blockquote>
 <p>这样可以不用写UserMapper.xml文件，但是需要更改mybatis-config.xml中mappers的内容</p>
 </blockquote>
-<h4><span id="8-zhu-yi-zhu-jie-he-xml-xing-shi-bu-ke-tong-shi-shi-yong-fou-ze-hui-bao-ru-xia-cuo-wu">8.注意：注解和xml形式不可同时使用，否则会报如下错误</span><a href="#8-zhu-yi-zhu-jie-he-xml-xing-shi-bu-ke-tong-shi-shi-yong-fou-ze-hui-bao-ru-xia-cuo-wu" class="header-anchor">#</a></h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: 
+<h4 id="8-注意：注解和xml形式不可同时使用，否则会报如下错误"><a href="#8-注意：注解和xml形式不可同时使用，否则会报如下错误" class="headerlink" title="8.注意：注解和xml形式不可同时使用，否则会报如下错误"></a>8.注意：注解和xml形式不可同时使用，否则会报如下错误</h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: 
 ### Error building SqlSession.
 ### The error may exist in com/ychy/mybatis/mapper/UserMapper.java (best guess)
 ### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)
@@ -203,10 +156,57 @@ public interface UserMapper &#123;
 ]]></content>
   </entry>
   <entry>
+    <title>Linux exec命令使用</title>
+    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
+<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
+<pre><code>#!/bin/sh
+set -e
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    exec 3&gt;&amp;1
+else
+    exec 3&gt;/dev/null
+fi
+.....
+</code></pre>
+<span id="more"></span>
+<p>在CentOS Linux release 7.9下查看man手册</p>
+<pre><code>man exec
+</code></pre>
+<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
+<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
+<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
+<h2 id="fork简介"><a href="#fork简介" class="headerlink" title="fork简介"></a>fork简介</h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
+<p>fork命令是linux的系统调用，用来创建子进程。</p>
+<blockquote>
+<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
+</blockquote>
+<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
+<h2 id="exec的执行"><a href="#exec的执行" class="headerlink" title="exec的执行"></a>exec的执行</h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
+<h2 id="总结：exec和fork的异同"><a href="#总结：exec和fork的异同" class="headerlink" title="总结：exec和fork的异同"></a>总结：exec和fork的异同</h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
+<h2 id="exec的应用"><a href="#exec的应用" class="headerlink" title="exec的应用"></a>exec的应用</h2><h3 id="exec-执行某个指令"><a href="#exec-执行某个指令" class="headerlink" title="exec 执行某个指令"></a>exec 执行某个指令</h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
+<h3 id="exec-不执行命令"><a href="#exec-不执行命令" class="headerlink" title="exec 不执行命令"></a>exec 不执行命令</h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
+<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
+    exec 3&gt;&amp;1
+else
+    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
+    exec 3&gt;/dev/null
+fi
+</code></pre>
+<blockquote>
+<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
+</blockquote>
+<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
+]]></content>
+  </entry>
+  <entry>
     <title>RabbitMQ-Federation Plugin使用示例</title>
     <url>/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</url>
     <content><![CDATA[<p>本文采用docker环境来做Federation Plugin配置的流程。</p>
-<h1><span id="ji-chu-huan-jing-zhun-bei">基础环境准备</span><a href="#ji-chu-huan-jing-zhun-bei" class="header-anchor">#</a></h1><h2><span id="ji-chu-wang-luo">基础网络</span><a href="#ji-chu-wang-luo" class="header-anchor">#</a></h2><table>
+<h1 id="基础环境准备"><a href="#基础环境准备" class="headerlink" title="基础环境准备"></a>基础环境准备</h1><h2 id="基础网络"><a href="#基础网络" class="headerlink" title="基础网络"></a>基础网络</h2><table>
 <thead>
 <tr>
 <th>名称</th>
@@ -229,7 +229,7 @@ public interface UserMapper &#123;
 </tr>
 </tbody></table>
 <span id="more"></span>
-<h2><span id="zi-yong-docker-compose-jing-xiang">自用docker-compose镜像</span><a href="#zi-yong-docker-compose-jing-xiang" class="header-anchor">#</a></h2><pre><code>version: &#39;3&#39;
+<h2 id="自用docker-compose镜像"><a href="#自用docker-compose镜像" class="headerlink" title="自用docker-compose镜像"></a>自用docker-compose镜像</h2><pre><code>version: &#39;3&#39;
 
 services:
   rabbitmq:
@@ -262,9 +262,9 @@ services:
 networks:
   rabbitmq-network:
 </code></pre>
-<h2><span id="yun-xing-docker-compose">运行docker-compose</span><a href="#yun-xing-docker-compose" class="header-anchor">#</a></h2><pre><code>docker-compose up -d
+<h2 id="运行docker-compose"><a href="#运行docker-compose" class="headerlink" title="运行docker-compose"></a>运行docker-compose</h2><pre><code>docker-compose up -d
 </code></pre>
-<h2><span id="jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian">进入两个容器分别执行加载federation插件</span><a href="#jin-ru-liang-ge-rong-qi-fen-bie-zhi-xing-jia-zai-federation-cha-jian" class="header-anchor">#</a></h2><pre><code># 进入rabbitmq
+<h2 id="进入两个容器分别执行加载federation插件"><a href="#进入两个容器分别执行加载federation插件" class="headerlink" title="进入两个容器分别执行加载federation插件"></a>进入两个容器分别执行加载federation插件</h2><pre><code># 进入rabbitmq
 docker-compose exec rabbitmq bash
 rabbitmq-plugins enable rabbitmq_federation
 rabbitmq-plugins enable rabbitmq_federation_management
@@ -273,22 +273,22 @@ docker-compose exec rabbitmq-upstream bash
 rabbitmq-plugins enable rabbitmq_federation
 rabbitmq-plugins enable rabbitmq_federation_management
 </code></pre>
-<h2><span id="cha-kan-rong-qi-ip">查看容器ip</span><a href="#cha-kan-rong-qi-ip" class="header-anchor">#</a></h2><pre><code>ifconfig
+<h2 id="查看容器ip"><a href="#查看容器ip" class="headerlink" title="查看容器ip"></a>查看容器ip</h2><pre><code>ifconfig
 </code></pre>
 <p>当前我的两个容器ip如下<br>|名称|ip|<br>|—|—|<br>|rabbitmq|172.21.0.3|<br>|rabbitmq-upstream|172.21.0.2|</p>
-<h2><span id="zai-rabbitmq-rong-qi-she-zhi-upstream">在rabbitmq容器设置upstream</span><a href="#zai-rabbitmq-rong-qi-she-zhi-upstream" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
+<h2 id="在rabbitmq容器设置upstream"><a href="#在rabbitmq容器设置upstream" class="headerlink" title="在rabbitmq容器设置upstream"></a>在rabbitmq容器设置upstream</h2><pre><code># 已在容器中不需要执行该命令
 docker-compose exec rabbitmq bash
 rabbitmqctl set_parameter federation-upstream my-upstream \
 &#39;&#123;&quot;uri&quot;:&quot;amqp://guest:guest@172.21.0.2:5672&quot;,&quot;expires&quot;:3600000&#125;&#39;
 </code></pre>
 <p>设置好后ui界面会显示出对应的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/1.png"></p>
-<h2><span id="zai-rabbitmq-rong-qi-she-zhi-policy">在rabbitmq容器设置policy</span><a href="#zai-rabbitmq-rong-qi-she-zhi-policy" class="header-anchor">#</a></h2><pre><code># 已在容器中不需要执行该命令
+<h2 id="在rabbitmq容器设置policy"><a href="#在rabbitmq容器设置policy" class="headerlink" title="在rabbitmq容器设置policy"></a>在rabbitmq容器设置policy</h2><pre><code># 已在容器中不需要执行该命令
 docker-compose exec rabbitmq bash
 rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;
 </code></pre>
 <p>执行后可以查看federation对应UI界面会将本地的exchange与federate-me policy绑定<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/2.png"></p>
 <p>同时federation-upstream容器对应UI界面会有对应的绑定关系展示<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/3.png"></p>
-<h2><span id="dai-ma-ce-shi-python">代码测试（python）</span><a href="#dai-ma-ce-shi-python" class="header-anchor">#</a></h2><h3><span id="sheng-chan-zhe-dai-ma">生产者代码</span><a href="#sheng-chan-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq-upstream用于发送消息。</p>
+<h2 id="代码测试（python）"><a href="#代码测试（python）" class="headerlink" title="代码测试（python）"></a>代码测试（python）</h2><h3 id="生产者代码"><a href="#生产者代码" class="headerlink" title="生产者代码"></a>生产者代码</h3><p>生产者代码链接rabbitmq-upstream用于发送消息。</p>
 <pre><code>import pika
 import sys
 import os
@@ -314,7 +314,7 @@ if __name__ == &#39;__main__&#39;:
         except SystemExit:
             os._exit(0)
 </code></pre>
-<h3><span id="xiao-fei-zhe-dai-ma">消费者代码</span><a href="#xiao-fei-zhe-dai-ma" class="header-anchor">#</a></h3><p>生产者代码链接rabbitmq用于接收upstream的消息。</p>
+<h3 id="消费者代码"><a href="#消费者代码" class="headerlink" title="消费者代码"></a>消费者代码</h3><p>生产者代码链接rabbitmq用于接收upstream的消息。</p>
 <pre><code>import pika
 import os
 import sys
@@ -348,7 +348,7 @@ if __name__ == &#39;__main__&#39;:
         except SystemExit:
             os._exit(0)
 </code></pre>
-<h3><span id="yun-xing-jie-tu">运行截图</span><a href="#yun-xing-jie-tu" class="header-anchor">#</a></h3><p><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/4.png"><br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/5.png"></p>
+<h3 id="运行截图"><a href="#运行截图" class="headerlink" title="运行截图"></a>运行截图</h3><p><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/4.png"><br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/5.png"></p>
 ]]></content>
   </entry>
   <entry>
@@ -356,12 +356,12 @@ if __name__ == &#39;__main__&#39;:
     <url>/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/</url>
     <content><![CDATA[<p>最进在研究联邦学习框架FATE，FATE的部署方式有多种，其中有一种部署方式是基于spark来做分布式计算，并且使用Rabbitmq跨节点数据传输的（Federation Plug）。<br>文件简单介绍Rabbitmq的插件Federation Plugin的基本使用流程。</p>
 <span id="more"></span>
-<h1><span id="jian-shu-federationplugin">简述FederationPlugin</span><a href="#jian-shu-federationplugin" class="header-anchor">#</a></h1><p>FederationPlugin可以简单理解为不需要建立集群就可以在多个MQ服务的做消息传输。这样不建立集群就可以在不同的网络域下作数据传输。<br>如下图，可以基于队列消息传输，也可以基于exchange传输。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/1.png"></p>
-<h1><span id="ji-chu-shi-yong-liu-cheng">基础使用流程</span><a href="#ji-chu-shi-yong-liu-cheng" class="header-anchor">#</a></h1><h3><span id="1-kai-qi-federation-cha-jian">1. 开启Federation插件</span><a href="#1-kai-qi-federation-cha-jian" class="header-anchor">#</a></h3><p>启用rabbitmq_federation插件，可选启用rabbitmq_federation_management插件，用于控制台界面操作。</p>
+<h1 id="简述FederationPlugin"><a href="#简述FederationPlugin" class="headerlink" title="简述FederationPlugin"></a>简述FederationPlugin</h1><p>FederationPlugin可以简单理解为不需要建立集群就可以在多个MQ服务的做消息传输。这样不建立集群就可以在不同的网络域下作数据传输。<br>如下图，可以基于队列消息传输，也可以基于exchange传输。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/1.png"></p>
+<h1 id="基础使用流程"><a href="#基础使用流程" class="headerlink" title="基础使用流程"></a>基础使用流程</h1><h3 id="1-开启Federation插件"><a href="#1-开启Federation插件" class="headerlink" title="1. 开启Federation插件"></a>1. 开启Federation插件</h3><p>启用rabbitmq_federation插件，可选启用rabbitmq_federation_management插件，用于控制台界面操作。</p>
 <pre><code>rabbitmq-plugins enable rabbitmq_federation
 rabbitmq-plugins enable rabbitmq_federation_management
 </code></pre>
-<h3><span id="2-she-zhi-upstream">2. 设置upstream</span><a href="#2-she-zhi-upstream" class="header-anchor">#</a></h3><p>upstream就是一个上游服务，假设现在有节点A和节点B两方，B想要消费A中的队列，则A就是B的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/2.png"></p>
+<h3 id="2-设置upstream"><a href="#2-设置upstream" class="headerlink" title="2. 设置upstream"></a>2. 设置upstream</h3><p>upstream就是一个上游服务，假设现在有节点A和节点B两方，B想要消费A中的队列，则A就是B的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/2.png"></p>
 <p>下述server-name就是上图172.xx.xx.xx所在的broker。<br>server-name格式具体请产品AMQP-URL：<a href="https://www.rabbitmq.com/uri-spec.html">https://www.rabbitmq.com/uri-spec.html</a><br>简单举例：<br>|URI|Username|Passowd|Host|Port|Vhost|<br>|—|—|—|—|—|—|<br>|amqp://user:pass@host:10000/vhost|”user”|”pass”|”host”|10000|”vhost”|<br>|amqp://user%61:%61pass@ho%61st:10000/v%2fhost|”usera”|”apass”|”hoast”|10000|”v/host”|<br>|amqp://host|||”host”|||</p>
 <p>下述代码定义了一个名为my-upstream的federation-upstream，指定uri和expires，expires为消息的过期时间单位ms。</p>
 <pre><code>rabbitmqctl set_parameter federation-upstream my-upstream \
@@ -370,10 +370,10 @@ rabbitmq-plugins enable rabbitmq_federation_management
 <blockquote>
 <p>本文只展示了命令行设置方式，额外方式如：http、web UI等方式请参考官方文档<br><a href="https://www.rabbitmq.com/federation.html">https://www.rabbitmq.com/federation.html</a></p>
 </blockquote>
-<h3><span id="3-she-zhi-policy">3. 设置policy</span><a href="#3-she-zhi-policy" class="header-anchor">#</a></h3><p>policy可以理解为一个运行时配置，可以再mq运行时设置更改相关配置信息，具体参考官方文档：<a href="https://www.rabbitmq.com/parameters.html%E3%80%82">https://www.rabbitmq.com/parameters.html。</a><br>下述设置了一个policy，federate-me为自定义的名称，”^amq.“是正则表达式，用来匹配对应的exchanges，federation-upstream-set:”all”表示匹配所有的upstream。<br>概括下来就是，匹配所有amq.开头的exchange用来接收upstream消息</p>
+<h3 id="3-设置policy"><a href="#3-设置policy" class="headerlink" title="3. 设置policy"></a>3. 设置policy</h3><p>policy可以理解为一个运行时配置，可以再mq运行时设置更改相关配置信息，具体参考官方文档：<a href="https://www.rabbitmq.com/parameters.html%E3%80%82">https://www.rabbitmq.com/parameters.html。</a><br>下述设置了一个policy，federate-me为自定义的名称，”^amq.“是正则表达式，用来匹配对应的exchanges，federation-upstream-set:”all”表示匹配所有的upstream。<br>概括下来就是，匹配所有amq.开头的exchange用来接收upstream消息</p>
 <pre><code>rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;
 </code></pre>
-<h3><span id="4-xie-dai-ma-ce-shi">4. 写代码测试</span><a href="#4-xie-dai-ma-ce-shi" class="header-anchor">#</a></h3><p>上述正常配置后，假设有AB两个节点，B节点设置upstream为A，则A的所有消息都将被B接收。</p>
+<h3 id="4-写代码测试"><a href="#4-写代码测试" class="headerlink" title="4. 写代码测试"></a>4. 写代码测试</h3><p>上述正常配置后，假设有AB两个节点，B节点设置upstream为A，则A的所有消息都将被B接收。</p>
 <blockquote>
 <p>具体示例参考后续文章【RabbitMQ-Federation Plugin使用示例】</p>
 </blockquote>
@@ -382,15 +382,15 @@ rabbitmq-plugins enable rabbitmq_federation_management
   <entry>
     <title>Spark on YARN最大化执行任务配置</title>
     <url>/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<h1><span id="gai-lan">概览</span><a href="#gai-lan" class="header-anchor">#</a></h1><p>本文简述spark调优历程，java服务端研发一枚，被要求搭建hadoop-spark环境运行机器学习。搭建完成后基本使用默认的配置文件执行任务，测试使用500MB的数据来运行逻辑回归，执行时间非常长，为了缩短任务运行时间，开始了无止尽的摸索参数配置。</p>
+    <content><![CDATA[<h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><p>本文简述spark调优历程，java服务端研发一枚，被要求搭建hadoop-spark环境运行机器学习。搭建完成后基本使用默认的配置文件执行任务，测试使用500MB的数据来运行逻辑回归，执行时间非常长，为了缩短任务运行时间，开始了无止尽的摸索参数配置。</p>
 <span id="more"></span>
-<h2><span id="zhu-yi">注意</span><a href="#zhu-yi" class="header-anchor">#</a></h2><ul>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><ul>
 <li>本文采用三台4H8G机器为测试机器，配置只是为了让单个任务最大化使用系统资源。</li>
 <li>本文配置文件内容仅供参考，需要根据实际机器资源和任务使用情况来自行设置</li>
 <li>本文描述系统的CPU和内存资源时简写，示例：4H8G表示4个cpu核数，8GB的内存</li>
 </ul>
-<h1><span id="yarn-ji-chu-pei-zhi">yarn基础配置</span><a href="#yarn-ji-chu-pei-zhi" class="header-anchor">#</a></h1><p>spark是运行在yarn中的，所以先从yarn的配置文件下手，单台服务器为4H8G，预留1H1G给操作系统，剩下的全部配置给yarn使用。因为当前只需要一个任务最大化使用系统资源，所以最大可分配内存可以跟节点总内存一致。</p>
-<h2><span id="nei-cun-xiang-guan-yarn-site-xml">内存相关（yarn-site.xml）</span><a href="#nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h2><pre><code class="xml">   &lt;property&gt;  
+<h1 id="yarn基础配置"><a href="#yarn基础配置" class="headerlink" title="yarn基础配置"></a>yarn基础配置</h1><p>spark是运行在yarn中的，所以先从yarn的配置文件下手，单台服务器为4H8G，预留1H1G给操作系统，剩下的全部配置给yarn使用。因为当前只需要一个任务最大化使用系统资源，所以最大可分配内存可以跟节点总内存一致。</p>
+<h2 id="内存相关（yarn-site-xml）"><a href="#内存相关（yarn-site-xml）" class="headerlink" title="内存相关（yarn-site.xml）"></a>内存相关（yarn-site.xml）</h2><pre><code class="xml">   &lt;property&gt;  
         &lt;name&gt;yarn.nodemanager.resource.memory-mb&lt;/name&gt;
         &lt;value&gt;7168&lt;/value&gt;
         &lt;description&gt;当前节点可分配的总内存&lt;/description&gt;
@@ -406,7 +406,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
         &lt;description&gt;最大可分配容器内存&lt;/description&gt;
     &lt;/property&gt;
 </code></pre>
-<h2><span id="xu-ni-nei-cun-xiang-guan-yarn-site-xml">虚拟内存相关（yarn-site.xml）</span><a href="#xu-ni-nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h2><p>关闭虚拟内存的检查，在执行任务的时候如果分配虚拟内存超出了虚拟内存可用值则会杀掉容器。</p>
+<h2 id="虚拟内存相关（yarn-site-xml）"><a href="#虚拟内存相关（yarn-site-xml）" class="headerlink" title="虚拟内存相关（yarn-site.xml）"></a>虚拟内存相关（yarn-site.xml）</h2><p>关闭虚拟内存的检查，在执行任务的时候如果分配虚拟内存超出了虚拟内存可用值则会杀掉容器。</p>
 <pre><code class="xml">&lt;property&gt;
         &lt;name&gt;yarn.nodemanager.vmem-check-enabled&lt;/name&gt;
         &lt;value&gt;false&lt;/value&gt;
@@ -418,7 +418,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
         &lt;description&gt;如果不关闭虚拟内存检查，并且任务运行需要占用大量内存时可以将改比率调高&lt;/description&gt;
 &lt;/property&gt;
 </code></pre>
-<h2><span id="cpu-xiang-guan-yarn-site-xml">cpu相关（yarn-site.xml）</span><a href="#cpu-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h2><p>cpu和基础设置跟内存一样，4H8G的服务器。预留一个CPU给操作系统以及任务调度运行。其他全部指定给yarn来使用。</p>
+<h2 id="cpu相关（yarn-site-xml）"><a href="#cpu相关（yarn-site-xml）" class="headerlink" title="cpu相关（yarn-site.xml）"></a>cpu相关（yarn-site.xml）</h2><p>cpu和基础设置跟内存一样，4H8G的服务器。预留一个CPU给操作系统以及任务调度运行。其他全部指定给yarn来使用。</p>
 <pre><code class="xml">    &lt;property&gt;
         &lt;name&gt;yarn.nodemanager.resource.cpu-vcores&lt;/name&gt;
         &lt;value&gt;7&lt;/value&gt;
@@ -435,13 +435,13 @@ rabbitmq-plugins enable rabbitmq_federation_management
         &lt;description&gt;最大可分配容器CPU&lt;/description&gt;
     &lt;/property&gt;
 </code></pre>
-<h2><span id="qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml">其他资源相关配置（yarn-site.xml）</span><a href="#qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml" class="header-anchor">#</a></h2><p>下面配置用来设置调度器使用的资源比较计算器，默认资源计算器使用：org.apache.hadoop.yarn.util.resource.DefaultResourseCalculator，该资源计算器只根据内存来计算资源，在yarn的UI界面中也不会显示cpu分配的内容，采用DominantResourceCalculator可以多维度计算资源。</p>
+<h2 id="其他资源相关配置（yarn-site-xml）"><a href="#其他资源相关配置（yarn-site-xml）" class="headerlink" title="其他资源相关配置（yarn-site.xml）"></a>其他资源相关配置（yarn-site.xml）</h2><p>下面配置用来设置调度器使用的资源比较计算器，默认资源计算器使用：org.apache.hadoop.yarn.util.resource.DefaultResourseCalculator，该资源计算器只根据内存来计算资源，在yarn的UI界面中也不会显示cpu分配的内容，采用DominantResourceCalculator可以多维度计算资源。</p>
 <pre><code class="xml">&lt;property&gt;
         &lt;name&gt;yarn.scheduler.capacity.resource-calculator&lt;/name&gt;
         &lt;value&gt;org.apache.hadoop.yarn.util.resource.DominantResourceCalculator&lt;/value&gt;
 &lt;/property&gt;
 </code></pre>
-<h2><span id="diao-du-qi-pei-zhi-capacity-scheduler-xml">调度器配置（capacity-scheduler.xml）</span><a href="#diao-du-qi-pei-zhi-capacity-scheduler-xml" class="header-anchor">#</a></h2><p>该配置项较多，至列特殊几个配置供参考，之前碰到一个场景是我想在当前集群同时运行两个任务，每个任务占总资源的1/2，但是总是后面一个任务在padding中，申请不到资源。所以重点可以关注下面配置是否合理</p>
+<h2 id="调度器配置（capacity-scheduler-xml）"><a href="#调度器配置（capacity-scheduler-xml）" class="headerlink" title="调度器配置（capacity-scheduler.xml）"></a>调度器配置（capacity-scheduler.xml）</h2><p>该配置项较多，至列特殊几个配置供参考，之前碰到一个场景是我想在当前集群同时运行两个任务，每个任务占总资源的1/2，但是总是后面一个任务在padding中，申请不到资源。所以重点可以关注下面配置是否合理</p>
 <pre><code>&lt;property&gt;xml
     &lt;name&gt;yarn.scheduler.capacity.maximum-am-resource-percent&lt;/name&gt;
     &lt;value&gt;1&lt;/value&gt;
@@ -457,7 +457,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
     &lt;/description&gt;
   &lt;/property&gt;
 </code></pre>
-<h1><span id="spark-ji-chu-pei-zhi">spark基础配置</span><a href="#spark-ji-chu-pei-zhi" class="header-anchor">#</a></h1><p>为了让运行的任务使用所有的资源，先计算所有可用资源有多少，当前yarn可分配的一共是3台服务器每台服务器3H7G内存，总计9H21G。</p>
+<h1 id="spark基础配置"><a href="#spark基础配置" class="headerlink" title="spark基础配置"></a>spark基础配置</h1><p>为了让运行的任务使用所有的资源，先计算所有可用资源有多少，当前yarn可分配的一共是3台服务器每台服务器3H7G内存，总计9H21G。</p>
 <ul>
 <li>假设分配4个容器执行任务，1个容器为ApplicationMaster用作spark资源调度。（–num-executors=4）</li>
 <li>ApplicationMaster占用1H1G，剩余8G20G留给任务执行，每个容器可以使用2H5G。（  –executor-cores=2）</li>

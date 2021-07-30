@@ -266,12 +266,12 @@
       
         <p>最进在研究联邦学习框架FATE，FATE的部署方式有多种，其中有一种部署方式是基于spark来做分布式计算，并且使用Rabbitmq跨节点数据传输的（Federation Plug）。<br>文件简单介绍Rabbitmq的插件Federation Plugin的基本使用流程。</p>
 <span id="more"></span>
-<h1><span id="jian-shu-federationplugin">简述FederationPlugin</span><a href="#jian-shu-federationplugin" class="header-anchor">#</a></h1><p>FederationPlugin可以简单理解为不需要建立集群就可以在多个MQ服务的做消息传输。这样不建立集群就可以在不同的网络域下作数据传输。<br>如下图，可以基于队列消息传输，也可以基于exchange传输。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/1.png"></p>
-<h1><span id="ji-chu-shi-yong-liu-cheng">基础使用流程</span><a href="#ji-chu-shi-yong-liu-cheng" class="header-anchor">#</a></h1><h3><span id="1-kai-qi-federation-cha-jian">1. 开启Federation插件</span><a href="#1-kai-qi-federation-cha-jian" class="header-anchor">#</a></h3><p>启用rabbitmq_federation插件，可选启用rabbitmq_federation_management插件，用于控制台界面操作。</p>
+<h1 id="简述FederationPlugin"><a href="#简述FederationPlugin" class="headerlink" title="简述FederationPlugin"></a>简述FederationPlugin</h1><p>FederationPlugin可以简单理解为不需要建立集群就可以在多个MQ服务的做消息传输。这样不建立集群就可以在不同的网络域下作数据传输。<br>如下图，可以基于队列消息传输，也可以基于exchange传输。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/1.png"></p>
+<h1 id="基础使用流程"><a href="#基础使用流程" class="headerlink" title="基础使用流程"></a>基础使用流程</h1><h3 id="1-开启Federation插件"><a href="#1-开启Federation插件" class="headerlink" title="1. 开启Federation插件"></a>1. 开启Federation插件</h3><p>启用rabbitmq_federation插件，可选启用rabbitmq_federation_management插件，用于控制台界面操作。</p>
 <pre><code>rabbitmq-plugins enable rabbitmq_federation
 rabbitmq-plugins enable rabbitmq_federation_management
 </code></pre>
-<h3><span id="2-she-zhi-upstream">2. 设置upstream</span><a href="#2-she-zhi-upstream" class="header-anchor">#</a></h3><p>upstream就是一个上游服务，假设现在有节点A和节点B两方，B想要消费A中的队列，则A就是B的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/2.png"></p>
+<h3 id="2-设置upstream"><a href="#2-设置upstream" class="headerlink" title="2. 设置upstream"></a>2. 设置upstream</h3><p>upstream就是一个上游服务，假设现在有节点A和节点B两方，B想要消费A中的队列，则A就是B的upstream。<br><img src="/2021/06/RabbitMQ-Federation-Plugin%E6%A6%82%E8%BF%B0/2.png"></p>
 <p>下述server-name就是上图172.xx.xx.xx所在的broker。<br>server-name格式具体请产品AMQP-URL：<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/uri-spec.html">https://www.rabbitmq.com/uri-spec.html</a><br>简单举例：<br>|URI|Username|Passowd|Host|Port|Vhost|<br>|—|—|—|—|—|—|<br>|amqp://user:pass@host:10000/vhost|”user”|”pass”|”host”|10000|”vhost”|<br>|amqp://user%61:%61pass@ho%61st:10000/v%2fhost|”usera”|”apass”|”hoast”|10000|”v/host”|<br>|amqp://host|||”host”|||</p>
 <p>下述代码定义了一个名为my-upstream的federation-upstream，指定uri和expires，expires为消息的过期时间单位ms。</p>
 <pre><code>rabbitmqctl set_parameter federation-upstream my-upstream \
@@ -280,10 +280,10 @@ rabbitmq-plugins enable rabbitmq_federation_management
 <blockquote>
 <p>本文只展示了命令行设置方式，额外方式如：http、web UI等方式请参考官方文档<br><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/federation.html">https://www.rabbitmq.com/federation.html</a></p>
 </blockquote>
-<h3><span id="3-she-zhi-policy">3. 设置policy</span><a href="#3-she-zhi-policy" class="header-anchor">#</a></h3><p>policy可以理解为一个运行时配置，可以再mq运行时设置更改相关配置信息，具体参考官方文档：<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/parameters.html%E3%80%82">https://www.rabbitmq.com/parameters.html。</a><br>下述设置了一个policy，federate-me为自定义的名称，”^amq.“是正则表达式，用来匹配对应的exchanges，federation-upstream-set:”all”表示匹配所有的upstream。<br>概括下来就是，匹配所有amq.开头的exchange用来接收upstream消息</p>
+<h3 id="3-设置policy"><a href="#3-设置policy" class="headerlink" title="3. 设置policy"></a>3. 设置policy</h3><p>policy可以理解为一个运行时配置，可以再mq运行时设置更改相关配置信息，具体参考官方文档：<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/parameters.html%E3%80%82">https://www.rabbitmq.com/parameters.html。</a><br>下述设置了一个policy，federate-me为自定义的名称，”^amq.“是正则表达式，用来匹配对应的exchanges，federation-upstream-set:”all”表示匹配所有的upstream。<br>概括下来就是，匹配所有amq.开头的exchange用来接收upstream消息</p>
 <pre><code>rabbitmqctl set_policy --apply-to exchanges federate-me &quot;^amq\.&quot; &#39;&#123;&quot;federation-upstream-set&quot;:&quot;all&quot;&#125;&#39;
 </code></pre>
-<h3><span id="4-xie-dai-ma-ce-shi">4. 写代码测试</span><a href="#4-xie-dai-ma-ce-shi" class="header-anchor">#</a></h3><p>上述正常配置后，假设有AB两个节点，B节点设置upstream为A，则A的所有消息都将被B接收。</p>
+<h3 id="4-写代码测试"><a href="#4-写代码测试" class="headerlink" title="4. 写代码测试"></a>4. 写代码测试</h3><p>上述正常配置后，假设有AB两个节点，B节点设置upstream为A，则A的所有消息都将被B接收。</p>
 <blockquote>
 <p>具体示例参考后续文章【RabbitMQ-Federation Plugin使用示例】</p>
 </blockquote>
@@ -368,7 +368,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">简述FederationPlugin</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">基础使用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.1.</span> <span class="nav-text">1. 开启Federation插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.2.</span> <span class="nav-text">2. 设置upstream</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.3.</span> <span class="nav-text">3. 设置policy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.0.4.</span> <span class="nav-text">4. 写代码测试</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E8%BF%B0FederationPlugin"><span class="nav-number">1.</span> <span class="nav-text">简述FederationPlugin</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">基础使用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%BC%80%E5%90%AFFederation%E6%8F%92%E4%BB%B6"><span class="nav-number">2.0.1.</span> <span class="nav-text">1. 开启Federation插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%AE%BE%E7%BD%AEupstream"><span class="nav-number">2.0.2.</span> <span class="nav-text">2. 设置upstream</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%AE%BE%E7%BD%AEpolicy"><span class="nav-number">2.0.3.</span> <span class="nav-text">3. 设置policy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%86%99%E4%BB%A3%E7%A0%81%E6%B5%8B%E8%AF%95"><span class="nav-number">2.0.4.</span> <span class="nav-text">4. 写代码测试</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
