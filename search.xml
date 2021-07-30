@@ -1,6 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Linux exec命令使用</title>
+    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
+<h2><span id="qi-yin">起因</span><a href="#qi-yin" class="header-anchor">#</a></h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
+<pre><code>#!/bin/sh
+set -e
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    exec 3&gt;&amp;1
+else
+    exec 3&gt;/dev/null
+fi
+.....
+</code></pre>
+<span id="more"></span>
+<p>在CentOS Linux release 7.9下查看man手册</p>
+<pre><code>man exec
+</code></pre>
+<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
+<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
+<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
+<h2><span id="fork-jian-jie">fork简介</span><a href="#fork-jian-jie" class="header-anchor">#</a></h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
+<p>fork命令是linux的系统调用，用来创建子进程。</p>
+<blockquote>
+<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
+</blockquote>
+<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
+<h2><span id="exec-de-zhi-xing">exec的执行</span><a href="#exec-de-zhi-xing" class="header-anchor">#</a></h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
+<h2><span id="zong-jie-exec-he-fork-de-yi-tong">总结：exec和fork的异同</span><a href="#zong-jie-exec-he-fork-de-yi-tong" class="header-anchor">#</a></h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
+<h2><span id="exec-de-ying-yong">exec的应用</span><a href="#exec-de-ying-yong" class="header-anchor">#</a></h2><h3><span id="exec-zhi-xing-mou-ge-zhi-ling">exec 执行某个指令</span><a href="#exec-zhi-xing-mou-ge-zhi-ling" class="header-anchor">#</a></h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
+<h3><span id="exec-bu-zhi-xing-ming-ling">exec 不执行命令</span><a href="#exec-bu-zhi-xing-ming-ling" class="header-anchor">#</a></h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
+<h2><span id="jie-lun">结论</span><a href="#jie-lun" class="header-anchor">#</a></h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
+<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
+    exec 3&gt;&amp;1
+else
+    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
+    exec 3&gt;/dev/null
+fi
+</code></pre>
+<blockquote>
+<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
+</blockquote>
+<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
+]]></content>
+  </entry>
+  <entry>
     <title>认识MyBatis</title>
     <url>/2021/06/%E8%AE%A4%E8%AF%86MyBatis/</url>
     <content><![CDATA[<p>MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。</p>
@@ -153,53 +200,6 @@ public interface UserMapper &#123;
 ### The error may exist in com/ychy/mybatis/mapper/UserMapper.java (best guess)
 ### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)
 </code></pre>
-]]></content>
-  </entry>
-  <entry>
-    <title>Linux exec命令使用</title>
-    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
-<h2><span id="qi-yin">起因</span><a href="#qi-yin" class="header-anchor">#</a></h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
-<pre><code>#!/bin/sh
-set -e
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    exec 3&gt;&amp;1
-else
-    exec 3&gt;/dev/null
-fi
-.....
-</code></pre>
-<span id="more"></span>
-<p>在CentOS Linux release 7.9下查看man手册</p>
-<pre><code>man exec
-</code></pre>
-<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
-<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
-<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
-<h2><span id="fork-jian-jie">fork简介</span><a href="#fork-jian-jie" class="header-anchor">#</a></h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
-<p>fork命令是linux的系统调用，用来创建子进程。</p>
-<blockquote>
-<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
-</blockquote>
-<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
-<h2><span id="exec-de-zhi-xing">exec的执行</span><a href="#exec-de-zhi-xing" class="header-anchor">#</a></h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
-<h2><span id="zong-jie-exec-he-fork-de-yi-tong">总结：exec和fork的异同</span><a href="#zong-jie-exec-he-fork-de-yi-tong" class="header-anchor">#</a></h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
-<h2><span id="exec-de-ying-yong">exec的应用</span><a href="#exec-de-ying-yong" class="header-anchor">#</a></h2><h3><span id="exec-zhi-xing-mou-ge-zhi-ling">exec 执行某个指令</span><a href="#exec-zhi-xing-mou-ge-zhi-ling" class="header-anchor">#</a></h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
-<h3><span id="exec-bu-zhi-xing-ming-ling">exec 不执行命令</span><a href="#exec-bu-zhi-xing-ming-ling" class="header-anchor">#</a></h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
-<h2><span id="jie-lun">结论</span><a href="#jie-lun" class="header-anchor">#</a></h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
-<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
-    exec 3&gt;&amp;1
-else
-    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
-    exec 3&gt;/dev/null
-fi
-</code></pre>
-<blockquote>
-<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
-</blockquote>
-<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
 ]]></content>
   </entry>
   <entry>
@@ -384,13 +384,13 @@ rabbitmq-plugins enable rabbitmq_federation_management
     <url>/2021/07/Spark-on-YARN%E6%9C%80%E5%A4%A7%E5%8C%96%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<h1><span id="gai-lan">概览</span><a href="#gai-lan" class="header-anchor">#</a></h1><p>本文简述spark调优历程，java服务端研发一枚，被要求搭建hadoop-spark环境运行机器学习。搭建完成后基本使用默认的配置文件执行任务，测试使用500MB的数据来运行逻辑回归，执行时间非常长，为了缩短任务运行时间，开始了无止尽的摸索参数配置。</p>
 <span id="more"></span>
-<h3><span id="zhu-yi">注意</span><a href="#zhu-yi" class="header-anchor">#</a></h3><ul>
+<h2><span id="zhu-yi">注意</span><a href="#zhu-yi" class="header-anchor">#</a></h2><ul>
 <li>本文采用三台4H8G机器为测试机器，配置只是为了让单个任务最大化使用系统资源。</li>
 <li>本文配置文件内容仅供参考，需要根据实际机器资源和任务使用情况来自行设置</li>
 <li>本文描述系统的CPU和内存资源时简写，示例：4H8G表示4个cpu核数，8GB的内存</li>
 </ul>
 <h1><span id="yarn-ji-chu-pei-zhi">yarn基础配置</span><a href="#yarn-ji-chu-pei-zhi" class="header-anchor">#</a></h1><p>spark是运行在yarn中的，所以先从yarn的配置文件下手，单台服务器为4H8G，预留1H1G给操作系统，剩下的全部配置给yarn使用。因为当前只需要一个任务最大化使用系统资源，所以最大可分配内存可以跟节点总内存一致。</p>
-<h3><span id="nei-cun-xiang-guan-yarn-site-xml">内存相关（yarn-site.xml）</span><a href="#nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h3><pre><code class="xml">   &lt;property&gt;  
+<h2><span id="nei-cun-xiang-guan-yarn-site-xml">内存相关（yarn-site.xml）</span><a href="#nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h2><pre><code class="xml">   &lt;property&gt;  
         &lt;name&gt;yarn.nodemanager.resource.memory-mb&lt;/name&gt;
         &lt;value&gt;7168&lt;/value&gt;
         &lt;description&gt;当前节点可分配的总内存&lt;/description&gt;
@@ -406,7 +406,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
         &lt;description&gt;最大可分配容器内存&lt;/description&gt;
     &lt;/property&gt;
 </code></pre>
-<h3><span id="xu-ni-nei-cun-xiang-guan-yarn-site-xml">虚拟内存相关（yarn-site.xml）</span><a href="#xu-ni-nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h3><p>关闭虚拟内存的检查，在执行任务的时候如果分配虚拟内存超出了虚拟内存可用值则会杀掉容器。</p>
+<h2><span id="xu-ni-nei-cun-xiang-guan-yarn-site-xml">虚拟内存相关（yarn-site.xml）</span><a href="#xu-ni-nei-cun-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h2><p>关闭虚拟内存的检查，在执行任务的时候如果分配虚拟内存超出了虚拟内存可用值则会杀掉容器。</p>
 <pre><code class="xml">&lt;property&gt;
         &lt;name&gt;yarn.nodemanager.vmem-check-enabled&lt;/name&gt;
         &lt;value&gt;false&lt;/value&gt;
@@ -418,7 +418,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
         &lt;description&gt;如果不关闭虚拟内存检查，并且任务运行需要占用大量内存时可以将改比率调高&lt;/description&gt;
 &lt;/property&gt;
 </code></pre>
-<h3><span id="cpu-xiang-guan-yarn-site-xml">cpu相关（yarn-site.xml）</span><a href="#cpu-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h3><p>cpu和基础设置跟内存一样，4H8G的服务器。预留一个CPU给操作系统以及任务调度运行。其他全部指定给yarn来使用。</p>
+<h2><span id="cpu-xiang-guan-yarn-site-xml">cpu相关（yarn-site.xml）</span><a href="#cpu-xiang-guan-yarn-site-xml" class="header-anchor">#</a></h2><p>cpu和基础设置跟内存一样，4H8G的服务器。预留一个CPU给操作系统以及任务调度运行。其他全部指定给yarn来使用。</p>
 <pre><code class="xml">    &lt;property&gt;
         &lt;name&gt;yarn.nodemanager.resource.cpu-vcores&lt;/name&gt;
         &lt;value&gt;7&lt;/value&gt;
@@ -435,13 +435,13 @@ rabbitmq-plugins enable rabbitmq_federation_management
         &lt;description&gt;最大可分配容器CPU&lt;/description&gt;
     &lt;/property&gt;
 </code></pre>
-<h3><span id="qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml">其他资源相关配置（yarn-site.xml）</span><a href="#qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml" class="header-anchor">#</a></h3><p>下面配置用来设置调度器使用的资源比较计算器，默认资源计算器使用：org.apache.hadoop.yarn.util.resource.DefaultResourseCalculator，该资源计算器只根据内存来计算资源，在yarn的UI界面中也不会显示cpu分配的内容，采用DominantResourceCalculator可以多维度计算资源。</p>
+<h2><span id="qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml">其他资源相关配置（yarn-site.xml）</span><a href="#qi-ta-zi-yuan-xiang-guan-pei-zhi-yarn-site-xml" class="header-anchor">#</a></h2><p>下面配置用来设置调度器使用的资源比较计算器，默认资源计算器使用：org.apache.hadoop.yarn.util.resource.DefaultResourseCalculator，该资源计算器只根据内存来计算资源，在yarn的UI界面中也不会显示cpu分配的内容，采用DominantResourceCalculator可以多维度计算资源。</p>
 <pre><code class="xml">&lt;property&gt;
         &lt;name&gt;yarn.scheduler.capacity.resource-calculator&lt;/name&gt;
         &lt;value&gt;org.apache.hadoop.yarn.util.resource.DominantResourceCalculator&lt;/value&gt;
 &lt;/property&gt;
 </code></pre>
-<h3><span id="diao-du-qi-pei-zhi-capacity-scheduler-xml">调度器配置（capacity-scheduler.xml）</span><a href="#diao-du-qi-pei-zhi-capacity-scheduler-xml" class="header-anchor">#</a></h3><p>该配置项较多，至列特殊几个配置供参考，之前碰到一个场景是我想在当前集群同时运行两个任务，每个任务占总资源的1/2，但是总是后面一个任务在padding中，申请不到资源。所以重点可以关注下面配置是否合理</p>
+<h2><span id="diao-du-qi-pei-zhi-capacity-scheduler-xml">调度器配置（capacity-scheduler.xml）</span><a href="#diao-du-qi-pei-zhi-capacity-scheduler-xml" class="header-anchor">#</a></h2><p>该配置项较多，至列特殊几个配置供参考，之前碰到一个场景是我想在当前集群同时运行两个任务，每个任务占总资源的1/2，但是总是后面一个任务在padding中，申请不到资源。所以重点可以关注下面配置是否合理</p>
 <pre><code>&lt;property&gt;xml
     &lt;name&gt;yarn.scheduler.capacity.maximum-am-resource-percent&lt;/name&gt;
     &lt;value&gt;1&lt;/value&gt;
