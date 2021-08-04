@@ -472,4 +472,178 @@ rabbitmq-plugins enable rabbitmq_federation_management
 </code></pre>
 ]]></content>
   </entry>
+  <entry>
+    <title>Spark on YARN配置资源动态申请</title>
+    <url>/2021/07/Spark-on-YARN%E9%85%8D%E7%BD%AE%E8%B5%84%E6%BA%90%E5%8A%A8%E6%80%81%E7%94%B3%E8%AF%B7/</url>
+    <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>运行spark任务时通常任务会按照默认配置正常执行任务，这样当集群中还有空余资源时，这部分资源就会白白浪费，本文介绍如果为spark开启动态资源申请，当有空余资源时，spark任务会自动伸缩来达到更高效的资源利用。</p>
+<blockquote>
+<p>spark版本： 2.4.1            hadoop版本：2.8.5</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="spark相关配置（spark-defaults-conf）"><a href="#spark相关配置（spark-defaults-conf）" class="headerlink" title="spark相关配置（spark-defaults.conf）"></a>spark相关配置（spark-defaults.conf）</h1><h2 id="开启动态资源申请"><a href="#开启动态资源申请" class="headerlink" title="开启动态资源申请"></a>开启动态资源申请</h2><p>首先需要开启spark动态申请配置spark.dynamicAllocation.enabled，他还需要一些子配置需要设置如：minExecutors、maxExecutors等，大多数情况下为应用配置合适的执行器都需要设置这些子属性。设置这些属性的时候需要大量的试验来确保应用分配正确的执行器个数，过多的分配只会造成资源浪费。下面给出示例配置：</p>
+<pre><code>spark.dynamicAllocation.enabled true
+spark.dynamicAllocation.minExecutors 1
+spark.dynamicAllocation.maxExecutors 10
+spark.dynamicAllocation.schedulerBacklogTimeout 1s
+spark.dynamicAllocation.sustainedSchedulerBacklogTimeout 5s
+</code></pre>
+<p>上述配置中额外设置了schedulerBacklogTimeout和sustainedSchedulerBacklogTimeout</p>
+<ul>
+<li>schedulerBacklogTimeout  表示：如果有处于Pending中的Task等待了一段时间(默认1秒)，则增加executor</li>
+<li>sustainedSchedulerBacklogTimeout 表示：在随后每隔N秒(默认1秒)，再检测Pending Task，如果仍然存在，则继续增加executor。</li>
+</ul>
+<h2 id="开启shuffle服务器"><a href="#开启shuffle服务器" class="headerlink" title="开启shuffle服务器"></a>开启shuffle服务器</h2><p>开启了spark.dynamicAllocation.enabled后还需要启动一个外部shuffle服务，供YARN使用。</p>
+<pre><code>spark.shuffle.service.enabled true
+spark.shuffle.service.port 7337
+</code></pre>
+<h1 id="yarn相关配置（yarn-siete-xml）"><a href="#yarn相关配置（yarn-siete-xml）" class="headerlink" title="yarn相关配置（yarn-siete.xml）"></a>yarn相关配置（yarn-siete.xml）</h1><h2 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h2><pre><code class="xml">&lt;property&gt;
+　　&lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;
+　　&lt;value&gt;mapreduce_shuffle,spark_shuffle&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+　　&lt;name&gt;yarn.nodemanager.aux-services.spark_shuffle.class&lt;/name&gt;
+　　&lt;value&gt;org.apache.spark.network.yarn.YarnShuffleService&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+　　&lt;name&gt;spark.shuffle.service.port&lt;/name&gt;
+　　&lt;value&gt;7337&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+<h2 id="额外操作"><a href="#额外操作" class="headerlink" title="额外操作"></a>额外操作</h2><p>为了让yarn支持spark的动态资源申请，还需要添加spark-yarn-shuffle的jar包：spark-<version>-yarn-shuffle.jar，本文使用spark-2.4.1版本，对应jar包位置在SPARK_HOME/yarn/spark-2.4.1-yarn-shuffle.jar。将该jar包放置HADOOP_HOME/share/hadoop/yarn/lib/目录下。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>OpenResty反向代理增加DNS解析支持</title>
+    <url>/2021/08/OpenResty%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%A2%9E%E5%8A%A0DNS%E8%A7%A3%E6%9E%90%E6%94%AF%E6%8C%81/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>当前工作中使用了开源的联邦学习框架FATE，其中“on spark”架构中使用到了OpenResty来做网关，docker部署服务时服务间的通讯直接使用docker-hostname来访问的，但是OpenResty中调用set_current_peer()无法直接请求hostname。代码片段如下</p>
+<span id="more"></span>
+<pre><code>local ngx = ngx
+local ngx_balancer = require &quot;ngx.balancer&quot;
+
+local function balance()
+    local dest_cluster = ngx.ctx.dest_cluster
+    -- 当前代理服务请求目标服务时只支持ip地址请求，dest_cluster实际内容为：ip+端口号
+    local ok, err = ngx_balancer.set_current_peer(dest_cluster)
+    if not ok then
+        return ngx.ERROR
+    end
+end
+
+balance()
+</code></pre>
+<h1 id="简介Nginx的resolver"><a href="#简介Nginx的resolver" class="headerlink" title="简介Nginx的resolver"></a>简介Nginx的resolver</h1><p>Nginx本身提供了resolver指令来解析hostname。</p>
+<pre><code>Syntax:    resolver address ... [valid=time] [ipv6=on|off];
+Default:     —
+Context:    http, server, location
+</code></pre>
+<p>示例：</p>
+<pre><code>resolver 8.8.8.8 114.114.114.114 valid=3600s;
+</code></pre>
+<h1 id="Lua-DNS解析支持"><a href="#Lua-DNS解析支持" class="headerlink" title="Lua-DNS解析支持"></a>Lua-DNS解析支持</h1><p>代码如下，读取/etc/resolv.conf文件中DNS地址，缓存该地址提高运行效率，通过lua-resty-dns库提供的方法解析域名获取实际IP地址。（代码中require “resolver”是用的lua-resty-dns库自定义的名称）</p>
+<blockquote>
+<p>获得lua-resty-dns请从git下载：<a href="https://github.com/openresty/lua-resty-dns">https://github.com/openresty/lua-resty-dns</a></p>
+</blockquote>
+<p>代码文件：host_resolver.lua</p>
+<pre><code>local _M = &#123;
+  _VERSION = &#39;0.1&#39;
+&#125;
+
+local resolver = require &quot;resolver&quot;
+local pcall = pcall
+local io_open = io.open
+local ngx_re_gmatch = ngx.re.gmatch
+local require = require
+local ngx_re_find = ngx.re.find
+local lrucache = require &quot;resty.lrucache&quot;
+local cache_storage = lrucache.new(200)
+local ok, new_tab = pcall(require, &quot;table.new&quot;)
+
+if not ok then
+    new_tab = function (narr, nrec) return &#123;&#125; end
+end
+
+local _dns_servers = new_tab(5, 0)
+
+local _read_file_data = function(path)
+    local f, err = io_open(path, &#39;r&#39;)
+
+    if not f or err then
+        return nil, err
+    end
+
+    local data = f:read(&#39;*all&#39;)
+    f:close()
+    return data, nil
+end
+
+local _read_dns_servers_from_resolv_file = function()
+    local text = _read_file_data(&#39;/etc/resolv.conf&#39;)
+
+    local captures, it, err
+    it, err = ngx_re_gmatch(text, [[^nameserver\s+(\d+?\.\d+?\.\d+?\.\d+$)]], &quot;jomi&quot;)
+
+    for captures, err in it do
+        if not err then
+            _dns_servers[#_dns_servers + 1] = captures[1]
+        end
+    end
+end
+
+local _is_addr = function(hostname)
+    return ngx_re_find(hostname, [[\d+?\.\d+?\.\d+?\.\d+$]], &quot;jo&quot;)
+end
+
+function _M.resolve(hostname)
+  if _is_addr(hostname) then
+      return hostname, hostname
+  end
+
+  local addr = cache_storage:get(hostname)
+
+  if addr then
+      return addr, hostname
+  end
+
+  local r, err = resolver:new(&#123;
+      nameservers = _dns_servers,
+      retrans = 5,  -- 5 retransmissions on receive timeout
+      timeout = 2000,  -- 2 sec
+  &#125;)
+
+  if not r then
+      return nil, hostname
+  end
+
+  local answers, err = r:query(hostname, &#123;qtype = r.TYPE_A&#125;)
+
+  if not answers or answers.errcode then
+      return nil, hostname
+  end
+
+  for i, ans in ipairs(answers) do
+      if ans.address then
+          cache_storage:set(hostname, ans.address, 300)
+          return ans.address, hostname
+      end
+  end
+
+  return nil, hostname
+end
+
+_read_dns_servers_from_resolv_file()
+
+return _M
+</code></pre>
+<h1 id="解析host"><a href="#解析host" class="headerlink" title="解析host"></a>解析host</h1><p>这样在读取到hostname的时候可以将其转换成ip地址发起调用。</p>
+<pre><code>-- 读取上一步编写的配置文件
+local host_resolver = require &quot;host_resolver&quot;
+-- 解析服务
+local server_ip = host_resolver.resolve(&quot;www.baidu.com&quot;)
+</code></pre>
+<blockquote>
+<p>上述代码结合需要结合实际业务放在合适的位置，本文开头调用服务代码没有修改，是在它之前对hostname做了处理保证发起调用是使用ip调用。</p>
+</blockquote>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/dns/use_dynamic_dns.html">https://moonbingbing.gitbooks.io/openresty-best-practices/content/dns/use_dynamic_dns.html</a><br><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/ngx_lua/resolve_the_domain_name.html">https://moonbingbing.gitbooks.io/openresty-best-practices/content/ngx_lua/resolve_the_domain_name.html</a></p>
+]]></content>
+  </entry>
 </search>
