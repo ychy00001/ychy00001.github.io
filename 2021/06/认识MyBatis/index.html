@@ -1,271 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
-  <link rel="mask-icon" href="/images/logo.svg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"ychy666.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
-  </script>
-
-  <meta name="description" content="MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。 一、简介官网的简介写的比较好，建议大家直接去官网查看。https:&#x2F;&#x2F;mybatis.org&#x2F;mybatis-3&#x2F;zh&#x2F;index.html简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="认识MyBatis">
-<meta property="og:url" content="http://ychy666.com/2021/06/%E8%AE%A4%E8%AF%86MyBatis/index.html">
-<meta property="og:site_name" content="远方小镇">
-<meta property="og:description" content="MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。 一、简介官网的简介写的比较好，建议大家直接去官网查看。https:&#x2F;&#x2F;mybatis.org&#x2F;mybatis-3&#x2F;zh&#x2F;index.html简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-06-16T05:12:41.000Z">
-<meta property="article:modified_time" content="2021-07-30T04:09:52.179Z">
-<meta property="article:author" content="Rain">
-<meta property="article:tag" content="IT,JAVA,架构">
-<meta name="twitter:card" content="summary">
-
-<link rel="canonical" href="http://ychy666.com/2021/06/%E8%AE%A4%E8%AF%86MyBatis/">
-
-
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
-</script>
-
-  <title>认识MyBatis | 远方小镇</title>
-  
-
-
-  <script>
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "https://hm.baidu.com/hm.js?3445fa9a835d1448e119c5b86f8b8637";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-  </script>
-
-
-
-
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
-    </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">远方小镇</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">我的个人博客</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-        <i class="fa fa-search fa-fw fa-lg"></i>
-    </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="main-menu menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
-
-  </li>
-      <li class="menu-item menu-item-search">
-        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
-        </a>
-      </li>
-  </ul>
-</nav>
-
-
-
-  <div class="search-pop-overlay">
-    <div class="popup search-popup">
-        <div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocapitalize="off"
-           placeholder="搜索..." spellcheck="false"
-           type="search" class="search-input">
-  </div>
-  <span class="popup-btn-close">
-    <i class="fa fa-times-circle"></i>
-  </span>
-</div>
-<div id="search-result">
-  <div id="no-result">
-    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
-  </div>
-</div>
-
-    </div>
-  </div>
-
-</div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
-            
-
-    
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://ychy666.com/2021/06/%E8%AE%A4%E8%AF%86MyBatis/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Rain">
-      <meta itemprop="description" content="Rain的个人博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="远方小镇">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          认识MyBatis
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-06-16 13:12:41" itemprop="dateCreated datePublished" datetime="2021-06-16T13:12:41+08:00">2021-06-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-30 12:09:52" itemprop="dateModified" datetime="2021-07-30T12:09:52+08:00">2021-07-30</time>
-              </span>
-
-          
-            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span id="busuanzi_value_page_pv"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2021/06/%E8%AE%A4%E8%AF%86MyBatis/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/06/%E8%AE%A4%E8%AF%86MyBatis/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-        <p>MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。</p>
-<h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p>官网的简介写的比较好，建议大家直接去官网查看。<br><a target="_blank" rel="noopener" href="https://mybatis.org/mybatis-3/zh/index.html">https://mybatis.org/mybatis-3/zh/index.html</a><br>简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。</p>
-<span id="more"></span>
-<blockquote>
-<p>其他ORM框架</p>
-</blockquote>
-<ul>
-<li>JDBC</li>
-<li>JdbcTemplate</li>
-<li>Hibernate </li>
-</ul>
-<h1 id="二、简单使用"><a href="#二、简单使用" class="headerlink" title="二、简单使用"></a>二、简单使用</h1><h4 id="1-创建maven项目-使用IDEA可以直接创建"><a href="#1-创建maven项目-使用IDEA可以直接创建" class="headerlink" title="1. 创建maven项目 使用IDEA可以直接创建"></a>1. 创建maven项目 使用IDEA可以直接创建</h4><h4 id="2-在resource目录创建mybatis-config-xml文件"><a href="#2-在resource目录创建mybatis-config-xml文件" class="headerlink" title="2. 在resource目录创建mybatis-config.xml文件"></a>2. 在resource目录创建mybatis-config.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.0"><link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png"><link rel="mask-icon" href="/images/logo.svg" color="#222"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"ychy666.com",root:"/",scheme:"Pisces",version:"7.8.0",exturl:!1,sidebar:{position:"left",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!1,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:"valine",storage:!0,lazyload:!1,nav:null,activeClass:"valine"},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。 一、简介官网的简介写的比较好，建议大家直接去官网查看。https:&#x2F;&#x2F;mybatis.org&#x2F;mybatis-3&#x2F;zh&#x2F;index.html简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。"><meta property="og:type" content="article"><meta property="og:title" content="认识MyBatis"><meta property="og:url" content="http://ychy666.com/2021/06/%E8%AE%A4%E8%AF%86MyBatis/index.html"><meta property="og:site_name" content="远方小镇"><meta property="og:description" content="MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。 一、简介官网的简介写的比较好，建议大家直接去官网查看。https:&#x2F;&#x2F;mybatis.org&#x2F;mybatis-3&#x2F;zh&#x2F;index.html简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。"><meta property="og:locale" content="zh_CN"><meta property="article:published_time" content="2021-06-16T05:12:41.000Z"><meta property="article:modified_time" content="2021-08-05T03:21:26.184Z"><meta property="article:author" content="Rain"><meta property="article:tag" content="MyBatis"><meta property="article:tag" content="ORM"><meta name="twitter:card" content="summary"><link rel="canonical" href="http://ychy666.com/2021/06/%E8%AE%A4%E8%AF%86MyBatis/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>认识MyBatis | 远方小镇</title><script>var _hmt=_hmt||[];!function(){var e=document.createElement("script");e.src="https://hm.baidu.com/hm.js?3445fa9a835d1448e119c5b86f8b8637";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)}()</script><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">远方小镇</h1><span class="logo-line-after"><i></i></span></a><p class="site-subtitle" itemprop="description">我的个人博客</p></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"><input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="http://ychy666.com/2021/06/%E8%AE%A4%E8%AF%86MyBatis/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.gif"><meta itemprop="name" content="Rain"><meta itemprop="description" content="Rain的个人博客"></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="远方小镇"></span><header class="post-header"><h1 class="post-title" itemprop="name headline">认识MyBatis</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i> </span><span class="post-meta-item-text">发表于</span> <time title="创建时间：2021-06-16 13:12:41" itemprop="dateCreated datePublished" datetime="2021-06-16T13:12:41+08:00">2021-06-16</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar-check"></i> </span><span class="post-meta-item-text">更新于</span> <time title="修改时间：2021-08-05 11:21:26" itemprop="dateModified" datetime="2021-08-05T11:21:26+08:00">2021-08-05</time> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i> </span><span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a> </span></span><span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="post-meta-item-text">阅读次数：</span> <span id="busuanzi_value_page_pv"></span> </span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i> </span><span class="post-meta-item-text">Valine：</span> <a title="valine" href="/2021/06/%E8%AE%A4%E8%AF%86MyBatis/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2021/06/%E8%AE%A4%E8%AF%86MyBatis/" itemprop="commentCount"></span></a></span></div></header><div class="post-body" itemprop="articleBody"><p>MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。</p><h1 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h1><p>官网的简介写的比较好，建议大家直接去官网查看。<br><a target="_blank" rel="noopener" href="https://mybatis.org/mybatis-3/zh/index.html">https://mybatis.org/mybatis-3/zh/index.html</a><br>简单点说MyBatis就是方便代码中操作数据库，避免了JDBS繁琐的设置及比编写。</p><span id="more"></span><blockquote><p>其他ORM框架</p></blockquote><ul><li>JDBC</li><li>JdbcTemplate</li><li>Hibernate</li></ul><h1 id="二、简单使用"><a href="#二、简单使用" class="headerlink" title="二、简单使用"></a>二、简单使用</h1><h4 id="1-创建maven项目-使用IDEA可以直接创建"><a href="#1-创建maven项目-使用IDEA可以直接创建" class="headerlink" title="1. 创建maven项目 使用IDEA可以直接创建"></a>1. 创建maven项目 使用IDEA可以直接创建</h4><h4 id="2-在resource目录创建mybatis-config-xml文件"><a href="#2-在resource目录创建mybatis-config-xml文件" class="headerlink" title="2. 在resource目录创建mybatis-config.xml文件"></a>2. 在resource目录创建mybatis-config.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
 &lt;!DOCTYPE configuration
         PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
         &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
@@ -285,11 +18,7 @@
         &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt;
     &lt;/mappers&gt;
 &lt;/configuration&gt;
-</code></pre>
-<blockquote>
-<p>注意 代码中${host}/${database} ${username}  ${password} 需要替换成自己对应的真实账号密码及链接路径</p>
-</blockquote>
-<h4 id="3-在resource目录创建mapper目录并创建UserMapper-xml文件"><a href="#3-在resource目录创建mapper目录并创建UserMapper-xml文件" class="headerlink" title="3. 在resource目录创建mapper目录并创建UserMapper.xml文件"></a>3. 在resource目录创建mapper目录并创建UserMapper.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+</code></pre><blockquote><p>注意 代码中${host}/${database} ${username} ${password} 需要替换成自己对应的真实账号密码及链接路径</p></blockquote><h4 id="3-在resource目录创建mapper目录并创建UserMapper-xml文件"><a href="#3-在resource目录创建mapper目录并创建UserMapper-xml文件" class="headerlink" title="3. 在resource目录创建mapper目录并创建UserMapper.xml文件"></a>3. 在resource目录创建mapper目录并创建UserMapper.xml文件</h4><pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
 &lt;!DOCTYPE mapper
         PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
         &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
@@ -298,11 +27,7 @@
         select * from User where id = #&#123;id&#125;
     &lt;/select&gt;
 &lt;/mapper&gt;
-</code></pre>
-<blockquote>
-<p>注意：namespace不是必须有这个包，mybatis使用namespace使用更长的限定名来将sql语句隔离开。<br>但是namespace我们都遵循这个规范就好，按照包名加类名来写，这样IDEA有插件可以方便跳转映射关系。见后面：使用正确描述每个语句的参数和返回值的接口UserMapper.java</p>
-</blockquote>
-<h4 id="4-单元测试"><a href="#4-单元测试" class="headerlink" title="4. 单元测试"></a>4. 单元测试</h4><pre><code class="java">public class MyBatisTest &#123;
+</code></pre><blockquote><p>注意：namespace不是必须有这个包，mybatis使用namespace使用更长的限定名来将sql语句隔离开。<br>但是namespace我们都遵循这个规范就好，按照包名加类名来写，这样IDEA有插件可以方便跳转映射关系。见后面：使用正确描述每个语句的参数和返回值的接口UserMapper.java</p></blockquote><h4 id="4-单元测试"><a href="#4-单元测试" class="headerlink" title="4. 单元测试"></a>4. 单元测试</h4><pre><code class="java">public class MyBatisTest &#123;
     @Test
     public void testUserSelectOne() throws Exception&#123;
         String resource = &quot;mybatis-config.xml&quot;;
@@ -314,11 +39,7 @@
         System.out.println(user);
     &#125;
 &#125;
-</code></pre>
-<blockquote>
-<p>这里sqlSession调用selectOne方法中第一个参数就是UserMapper.xml中namespace+id凭借而成的。<br>第二个参数为要查询的ID</p>
-</blockquote>
-<h4 id="5-项目依赖"><a href="#5-项目依赖" class="headerlink" title="5.项目依赖"></a>5.项目依赖</h4><pre><code class="xml">  &lt;dependencies&gt;
+</code></pre><blockquote><p>这里sqlSession调用selectOne方法中第一个参数就是UserMapper.xml中namespace+id凭借而成的。<br>第二个参数为要查询的ID</p></blockquote><h4 id="5-项目依赖"><a href="#5-项目依赖" class="headerlink" title="5.项目依赖"></a>5.项目依赖</h4><pre><code class="xml">  &lt;dependencies&gt;
         &lt;dependency&gt;
             &lt;groupId&gt;org.mybatis&lt;/groupId&gt;
             &lt;artifactId&gt;mybatis&lt;/artifactId&gt;
@@ -353,19 +74,14 @@
         &lt;/dependency&gt;
 
     &lt;/dependencies&gt;
-</code></pre>
-<h4 id="6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）"><a href="#6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）" class="headerlink" title="6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）"></a>6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</h4><pre><code class="java">package com.ychy.mybatis.mapper;
+</code></pre><h4 id="6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）"><a href="#6-接口式编程（使用正确描述每个语句的参数和返回值的接口-gt-UserMapper-java）" class="headerlink" title="6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）"></a>6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</h4><pre><code class="java">package com.ychy.mybatis.mapper;
 
 import com.ychy.mybatis.dao.User;
 
 public interface UserMapper &#123;
      User selectUser(int id);
 &#125;
-</code></pre>
-<blockquote>
-<p>为什么可以直接通过UserMapper接口就可以查询User呢？因为Mybatis底层使用了动态代理类。</p>
-</blockquote>
-<h5 id="单元测试可以更改如下"><a href="#单元测试可以更改如下" class="headerlink" title="单元测试可以更改如下"></a>单元测试可以更改如下</h5><pre><code class="java">public class MyBatisTest &#123;
+</code></pre><blockquote><p>为什么可以直接通过UserMapper接口就可以查询User呢？因为Mybatis底层使用了动态代理类。</p></blockquote><h5 id="单元测试可以更改如下"><a href="#单元测试可以更改如下" class="headerlink" title="单元测试可以更改如下"></a>单元测试可以更改如下</h5><pre><code class="java">public class MyBatisTest &#123;
     @Test
     public void testUserSelectOne() throws Exception&#123;
         String resource = &quot;mybatis-config.xml&quot;;
@@ -380,262 +96,18 @@ public interface UserMapper &#123;
         System.out.println(user);
     &#125;
 &#125;
-</code></pre>
-<blockquote>
-<p>这样不仅可以执行更清晰和类型安全的代码，而且还不用担心易错的字符串字面值以及强制类型转换</p>
-</blockquote>
-<h4 id="7-使用注解的方式访问"><a href="#7-使用注解的方式访问" class="headerlink" title="7. 使用注解的方式访问"></a>7. 使用注解的方式访问</h4><pre><code class="java">public interface UserMapper &#123;
+</code></pre><blockquote><p>这样不仅可以执行更清晰和类型安全的代码，而且还不用担心易错的字符串字面值以及强制类型转换</p></blockquote><h4 id="7-使用注解的方式访问"><a href="#7-使用注解的方式访问" class="headerlink" title="7. 使用注解的方式访问"></a>7. 使用注解的方式访问</h4><pre><code class="java">public interface UserMapper &#123;
      @Select(&quot;SELECT * FROM user WHERE id = #&#123;id&#125;&quot;)
      User selectUser(int id);
 &#125;
-</code></pre>
-<h5 id="同时需要更改mybatis-config-xml"><a href="#同时需要更改mybatis-config-xml" class="headerlink" title="同时需要更改mybatis-config.xml"></a>同时需要更改mybatis-config.xml</h5><pre><code class="xml">    &lt;mappers&gt;
+</code></pre><h5 id="同时需要更改mybatis-config-xml"><a href="#同时需要更改mybatis-config-xml" class="headerlink" title="同时需要更改mybatis-config.xml"></a>同时需要更改mybatis-config.xml</h5><pre><code class="xml">    &lt;mappers&gt;
         &lt;!-- 使用xml方式 --&gt;
 &lt;!-- &lt;mapper resource=&quot;mapper/UserMapper.xml&quot;/&gt; --&gt;
         &lt;!-- 使用注解方式方式 --&gt;
         &lt;mapper class=&quot;com.ychy.mybatis.mapper.UserMapper&quot;&gt;&lt;/mapper&gt;
     &lt;/mappers&gt;
-</code></pre>
-<blockquote>
-<p>这样可以不用写UserMapper.xml文件，但是需要更改mybatis-config.xml中mappers的内容</p>
-</blockquote>
-<h4 id="8-注意：注解和xml形式不可同时使用，否则会报如下错误"><a href="#8-注意：注解和xml形式不可同时使用，否则会报如下错误" class="headerlink" title="8.注意：注解和xml形式不可同时使用，否则会报如下错误"></a>8.注意：注解和xml形式不可同时使用，否则会报如下错误</h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: 
+</code></pre><blockquote><p>这样可以不用写UserMapper.xml文件，但是需要更改mybatis-config.xml中mappers的内容</p></blockquote><h4 id="8-注意：注解和xml形式不可同时使用，否则会报如下错误"><a href="#8-注意：注解和xml形式不可同时使用，否则会报如下错误" class="headerlink" title="8.注意：注解和xml形式不可同时使用，否则会报如下错误"></a>8.注意：注解和xml形式不可同时使用，否则会报如下错误</h4><pre><code>org.apache.ibatis.exceptions.PersistenceException: 
 ### Error building SqlSession.
 ### The error may exist in com/ychy/mybatis/mapper/UserMapper.java (best guess)
 ### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)
-</code></pre>
-
-    </div>
-
-    
-    
-    
-
-      <footer class="post-footer">
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item"></div>
-      <div class="post-nav-item">
-    <a href="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/" rel="next" title="Linux exec命令使用">
-      Linux exec命令使用 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
-          </div>
-          
-    <div class="comments" id="valine-comments"></div>
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
-  </div>
-
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          文章目录
-        </li>
-        <li class="sidebar-nav-overview">
-          站点概览
-        </li>
-      </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二、简单使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BAmaven%E9%A1%B9%E7%9B%AE-%E4%BD%BF%E7%94%A8IDEA%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E5%88%9B%E5%BB%BA"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">1. 创建maven项目 使用IDEA可以直接创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%9C%A8resource%E7%9B%AE%E5%BD%95%E5%88%9B%E5%BB%BAmybatis-config-xml%E6%96%87%E4%BB%B6"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2. 在resource目录创建mybatis-config.xml文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%9C%A8resource%E7%9B%AE%E5%BD%95%E5%88%9B%E5%BB%BAmapper%E7%9B%AE%E5%BD%95%E5%B9%B6%E5%88%9B%E5%BB%BAUserMapper-xml%E6%96%87%E4%BB%B6"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">3. 在resource目录创建mapper目录并创建UserMapper.xml文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">4. 单元测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E9%A1%B9%E7%9B%AE%E4%BE%9D%E8%B5%96"><span class="nav-number">2.0.0.5.</span> <span class="nav-text">5.项目依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E6%8E%A5%E5%8F%A3%E5%BC%8F%E7%BC%96%E7%A8%8B%EF%BC%88%E4%BD%BF%E7%94%A8%E6%AD%A3%E7%A1%AE%E6%8F%8F%E8%BF%B0%E6%AF%8F%E4%B8%AA%E8%AF%AD%E5%8F%A5%E7%9A%84%E5%8F%82%E6%95%B0%E5%92%8C%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E6%8E%A5%E5%8F%A3-gt-UserMapper-java%EF%BC%89"><span class="nav-number">2.0.0.6.</span> <span class="nav-text">6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E5%8F%AF%E4%BB%A5%E6%9B%B4%E6%94%B9%E5%A6%82%E4%B8%8B"><span class="nav-number">2.0.0.6.1.</span> <span class="nav-text">单元测试可以更改如下</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E7%9A%84%E6%96%B9%E5%BC%8F%E8%AE%BF%E9%97%AE"><span class="nav-number">2.0.0.7.</span> <span class="nav-text">7. 使用注解的方式访问</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%90%8C%E6%97%B6%E9%9C%80%E8%A6%81%E6%9B%B4%E6%94%B9mybatis-config-xml"><span class="nav-number">2.0.0.7.1.</span> <span class="nav-text">同时需要更改mybatis-config.xml</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-%E6%B3%A8%E6%84%8F%EF%BC%9A%E6%B3%A8%E8%A7%A3%E5%92%8Cxml%E5%BD%A2%E5%BC%8F%E4%B8%8D%E5%8F%AF%E5%90%8C%E6%97%B6%E4%BD%BF%E7%94%A8%EF%BC%8C%E5%90%A6%E5%88%99%E4%BC%9A%E6%8A%A5%E5%A6%82%E4%B8%8B%E9%94%99%E8%AF%AF"><span class="nav-number">2.0.0.8.</span> <span class="nav-text">8.注意：注解和xml形式不可同时使用，否则会报如下错误</span></a></li></ol></li></ol></li></ol></li></ol></div>
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Rain</p>
-  <div class="site-description" itemprop="description">Rain的个人博客</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">7</span>
-          <span class="site-state-item-name">日志</span>
-        </a>
-      </div>
-  </nav>
-</div>
-
-
-
-      </div>
-
-    </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
-
-
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2021</span>
-  <span class="with-love">
-    <i class="fa fa-heart"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Rain</span>
-</div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
-  </div>
-
-        
-<div class="busuanzi-count">
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-user"></i>
-      </span>
-      <span class="site-uv" title="总访客量">
-        <span id="busuanzi_value_site_uv"></span>
-      </span>
-    </span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-eye"></i>
-      </span>
-      <span class="site-pv" title="总访问量">
-        <span id="busuanzi_value_site_pv"></span>
-      </span>
-    </span>
-</div>
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
-  </div>
-
-  
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
-
-  
-
-
-
-
-  
-<script src="/js/local-search.js"></script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-
-<script>
-NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
-  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
-    var GUEST = ['nick', 'mail', 'link'];
-    var guest = 'nick,mail,link';
-    guest = guest.split(',').filter(item => {
-      return GUEST.includes(item);
-    });
-    new Valine({
-      el         : '#valine-comments',
-      verify     : false,
-      notify     : false,
-      appId      : 'nMP4IuPbHM3sEUJjUAqqMwwc-gzGzoHsz',
-      appKey     : 'juIhJUhCJPleatOoVM6hMSOe',
-      placeholder: "Just go go",
-      avatar     : 'mm',
-      meta       : guest,
-      pageSize   : '10' || 10,
-      visitor    : false,
-      lang       : '' || 'zh-cn',
-      path       : location.pathname,
-      recordIP   : false,
-      serverURLs : 'https://nmp4iupb.lc-cn-n1-shared.com'
-    });
-  }, window.Valine);
-});
-</script>
-
-</body>
-</html>
+</code></pre></div><footer class="post-footer"><div class="post-tags"><a href="/tags/MyBatis/" rel="tag"># MyBatis</a> <a href="/tags/ORM/" rel="tag"># ORM</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2018/11/Git%E6%B7%BB%E5%8A%A0%E5%A4%9A%E4%B8%AAssh-key/" rel="prev" title="Git添加多个ssh-key"><i class="fa fa-chevron-left"></i> Git添加多个ssh-key</a></div><div class="post-nav-item"><a href="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/" rel="next" title="Linux exec命令使用">Linux exec命令使用 <i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>window.addEventListener("tabs:register",()=>{let e=CONFIG.comments["activeClass"];if(CONFIG.comments.storage&&(e=localStorage.getItem("comments_active")||e),e){let t=document.querySelector(`a[href="#comment-${e}"]`);t&&t.click()}}),CONFIG.comments.storage&&window.addEventListener("tabs:click",t=>{t.target.matches(".tabs-comment .tab-content .tab-pane")&&(t=t.target.classList[1],localStorage.setItem("comments_active",t))})</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span> <span class="toggle-line toggle-line-middle"></span> <span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc">文章目录</li><li class="sidebar-nav-overview">站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二、简单使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BAmaven%E9%A1%B9%E7%9B%AE-%E4%BD%BF%E7%94%A8IDEA%E5%8F%AF%E4%BB%A5%E7%9B%B4%E6%8E%A5%E5%88%9B%E5%BB%BA"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">1. 创建maven项目 使用IDEA可以直接创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%9C%A8resource%E7%9B%AE%E5%BD%95%E5%88%9B%E5%BB%BAmybatis-config-xml%E6%96%87%E4%BB%B6"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2. 在resource目录创建mybatis-config.xml文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%9C%A8resource%E7%9B%AE%E5%BD%95%E5%88%9B%E5%BB%BAmapper%E7%9B%AE%E5%BD%95%E5%B9%B6%E5%88%9B%E5%BB%BAUserMapper-xml%E6%96%87%E4%BB%B6"><span class="nav-number">2.0.0.3.</span> <span class="nav-text">3. 在resource目录创建mapper目录并创建UserMapper.xml文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95"><span class="nav-number">2.0.0.4.</span> <span class="nav-text">4. 单元测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E9%A1%B9%E7%9B%AE%E4%BE%9D%E8%B5%96"><span class="nav-number">2.0.0.5.</span> <span class="nav-text">5.项目依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E6%8E%A5%E5%8F%A3%E5%BC%8F%E7%BC%96%E7%A8%8B%EF%BC%88%E4%BD%BF%E7%94%A8%E6%AD%A3%E7%A1%AE%E6%8F%8F%E8%BF%B0%E6%AF%8F%E4%B8%AA%E8%AF%AD%E5%8F%A5%E7%9A%84%E5%8F%82%E6%95%B0%E5%92%8C%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E6%8E%A5%E5%8F%A3-gt-UserMapper-java%EF%BC%89"><span class="nav-number">2.0.0.6.</span> <span class="nav-text">6. 接口式编程（使用正确描述每个语句的参数和返回值的接口-&gt;UserMapper.java）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E5%8F%AF%E4%BB%A5%E6%9B%B4%E6%94%B9%E5%A6%82%E4%B8%8B"><span class="nav-number">2.0.0.6.1.</span> <span class="nav-text">单元测试可以更改如下</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E7%9A%84%E6%96%B9%E5%BC%8F%E8%AE%BF%E9%97%AE"><span class="nav-number">2.0.0.7.</span> <span class="nav-text">7. 使用注解的方式访问</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%90%8C%E6%97%B6%E9%9C%80%E8%A6%81%E6%9B%B4%E6%94%B9mybatis-config-xml"><span class="nav-number">2.0.0.7.1.</span> <span class="nav-text">同时需要更改mybatis-config.xml</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-%E6%B3%A8%E6%84%8F%EF%BC%9A%E6%B3%A8%E8%A7%A3%E5%92%8Cxml%E5%BD%A2%E5%BC%8F%E4%B8%8D%E5%8F%AF%E5%90%8C%E6%97%B6%E4%BD%BF%E7%94%A8%EF%BC%8C%E5%90%A6%E5%88%99%E4%BC%9A%E6%8A%A5%E5%A6%82%E4%B8%8B%E9%94%99%E8%AF%AF"><span class="nav-number">2.0.0.8.</span> <span class="nav-text">8.注意：注解和xml形式不可同时使用，否则会报如下错误</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"><p class="site-author-name" itemprop="name">Rain</p><div class="site-description" itemprop="description">Rain的个人博客</div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"><a href="/archives/"><span class="site-state-item-count">9</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"><a href="/categories/"><span class="site-state-item-count">6</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"><a href="/tags/"><span class="site-state-item-count">15</span> <span class="site-state-item-name">标签</span></a></div></nav></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div class="copyright">&copy; <span itemprop="copyrightYear">2021</span> <span class="with-love"><i class="fa fa-heart"></i> </span><span class="author" itemprop="copyrightHolder">Rain</span></div><div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动</div><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-user"></i> </span><span class="site-uv" title="总访客量"><span id="busuanzi_value_site_uv"></span> </span></span><span class="post-meta-divider">|</span> <span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i> </span><span class="site-pv" title="总访问量"><span id="busuanzi_value_site_pv"></span></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script src="/js/local-search.js"></script><script>NexT.utils.loadComments(document.querySelector("#valine-comments"),()=>{NexT.utils.getScript("//unpkg.com/valine/dist/Valine.min.js",()=>{var i=["nick","mail","link"],e="nick,mail,link".split(",").filter(e=>i.includes(e));new Valine({el:"#valine-comments",verify:!1,notify:!1,appId:"nMP4IuPbHM3sEUJjUAqqMwwc-gzGzoHsz",appKey:"juIhJUhCJPleatOoVM6hMSOe",placeholder:"Just go go",avatar:"mm",meta:e,pageSize:"10",visitor:!1,lang:"zh-cn",path:location.pathname,recordIP:!1,serverURLs:"https://nmp4iupb.lc-cn-n1-shared.com"})},window.Valine)})</script></body></html>

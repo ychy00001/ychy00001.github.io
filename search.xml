@@ -1,6 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Git添加多个ssh-key</title>
+    <url>/2018/11/Git%E6%B7%BB%E5%8A%A0%E5%A4%9A%E4%B8%AAssh-key/</url>
+    <content><![CDATA[<p>工作中经常本机有自己github仓库的ssh，公司又需要添加公司内部的gitlab的ssh，这样就需要配置多个ssh-key。本文简单描述了如何创建多个ssh-key并配置使用。 </p>
+<span id="more"></span>
+<h1 id="生成ssh-key"><a href="#生成ssh-key" class="headerlink" title="生成ssh-key"></a>生成ssh-key</h1><h2 id="添加ssh-key不要三次回车"><a href="#添加ssh-key不要三次回车" class="headerlink" title="添加ssh-key不要三次回车"></a>添加ssh-key不要三次回车</h2><pre><code>ssh-keygen -t rsa -C &quot;example@mail.com&quot;
+</code></pre>
+<h2 id="输入完上述命令后"><a href="#输入完上述命令后" class="headerlink" title="输入完上述命令后"></a>输入完上述命令后</h2><p><img src="/2018/11/Git%E6%B7%BB%E5%8A%A0%E5%A4%9A%E4%B8%AAssh-key/1.png"><br>在这里输入对应要创建的ssh_key的名称，默认为id_rsa ，可以填写id_rsa_example再按两次回车。</p>
+<h1 id="添加配置文件"><a href="#添加配置文件" class="headerlink" title="添加配置文件"></a>添加配置文件</h1><pre><code>vim ~/.ssh/config
+</code></pre>
+<h2 id="配置ssh对应的key"><a href="#配置ssh对应的key" class="headerlink" title="配置ssh对应的key"></a>配置ssh对应的key</h2><pre><code>Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa
+
+Host git.example.com
+    HostName git.example.com    //这个就是公司的host
+    User git
+    IdentityFile ~/.ssh/id_rsa_example
+</code></pre>
+<h2 id="添加私钥"><a href="#添加私钥" class="headerlink" title="添加私钥"></a>添加私钥</h2><pre><code>ssh-add ~/.ssh/id_rsa_example
+</code></pre>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><pre><code>ssh -vT git@github.com
+</code></pre>
+<h1 id="添加至github-gitlab"><a href="#添加至github-gitlab" class="headerlink" title="添加至github/gitlab"></a>添加至github/gitlab</h1><p>最后将~/.ssh/xxxx.pub放至对应的github/gitlab的ssh配置中即可。（公钥需要与config文件中HostName配置的私钥对应）</p>
+]]></content>
+      <categories>
+        <category>研发工具</category>
+      </categories>
+      <tags>
+        <tag>git</tag>
+        <tag>ssh</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>shell-if[command]参数整理</title>
+    <url>/2016/07/shell-if-command-%E5%8F%82%E6%95%B0%E6%95%B4%E7%90%86/</url>
+    <content><![CDATA[<p>[-a file] 如果file存在则为真<br>[-b file] 如果file存在且是一个块特殊文件则为真<br>[-c file] 如果file存在且是一个字特殊文件则为真 </p>
+<span id="more"></span>
+<p>[-d file] 如果file文件存在且是一个目录则为真<br>[-e file] 如果file文件存在则为真<br>[-f file] 如果file存在且是一个普通文件则为真<br>[-g file] 如果file存在且已经设置了SGID则为真（SUID 是 Set User ID, SGID 是 Set Group ID的意思）<br>[-h file] 如果file存在且是一个符号连接则为真<br>[-k file] 如果file存在且已经设置sticky则为真 ，（sticky标识该文件/目录是任何人都可以写,但也只有文件的属主才可以删除文件，linux下/tmp目录就是这样的目录）<br>[-p file] 如果file存在且是一个名字管道（F如果O）则为真 （管道是linux里面进程间通信的一种方式，其他的还有像信号（signal）、信号量、消息队列、共享内存、套接字（socket）等）<br>[-r file] 如果file存在且是可读的则为真<br>[-s file] 如果file存在且大小不为0则为真<br>[-t FD] 如果文件描述符FD打开且指向一个终端则为真<br>[-u file] 如果file存在且设置了SUID（set userID）则为真<br>[-w file] 如果file存在且是可写的则为真<br>[-x file] 如果file存在且是可执行的则为真<br>[-O file] 如果file存在且属有效用户ID则为真<br>[-G file] 如果file存在且属有效用户组则为真<br>[-L file] 如果file存在且是一个符号连接则为真<br>[-N file] 如果file存在并且自上次读取后被修改则为真<br>[-S file] 如果file存在且是一个套接字则为真<br>[file1 –nt file2] 如果file1更新时间大于file2或者file1 存在 file2 不存在则为真<br>[file1 –ot file2] 如果file1比file2要老，或者file2存在且file1不存在则为真<br>[file1 –ef file2] 如果file1和file2指向相同的设备和节点号则为真<br>[-o optionname] 如果shell选项“optionname”开启则为真<br>[-z string] “string”的长度为零则为真<br>[-n string] or [string] “string”的长度为非零non-zero则为真<br>[sting 1== string2] 如果2个字符串相同。“=”may be used instead of “==”for strict posix compliance则为真<br>[string1 != string2] 如果字符串不相等则为真<br>[string1 &lt; string2] string1的字典顺序在string2之前则为真<br>[arg1 OP arg2] “OP”可以是以下几个操作（-eq  : 等于、-ne : 不等于、-lt : 小于、-le : 小于等于、-gt : 大于、–ge : 大于等于）</p>
+<blockquote>
+<p>参考文章：<a href="https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html">https://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>shell</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>认识MyBatis</title>
     <url>/2021/06/%E8%AE%A4%E8%AF%86MyBatis/</url>
     <content><![CDATA[<p>MyBatis是java开发中常用的ORM框架，本文介绍MyBatis的入门使用。</p>
@@ -154,6 +206,13 @@ public interface UserMapper &#123;
 ### Cause: org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: java.lang.IllegalArgumentException: Mapped Statements collection already contains value for com.ychy.mybatis.mapper.UserMapper.selectUser. please check mapper/UserMapper.xml and com/ychy/mybatis/mapper/UserMapper.java (best guess)
 </code></pre>
 ]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>MyBatis</tag>
+        <tag>ORM</tag>
+      </tags>
   </entry>
   <entry>
     <title>Linux exec命令使用</title>
@@ -201,6 +260,12 @@ fi
 </blockquote>
 <p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
 ]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
   </entry>
   <entry>
     <title>RabbitMQ-Federation Plugin使用示例</title>
@@ -350,6 +415,14 @@ if __name__ == &#39;__main__&#39;:
 </code></pre>
 <h3 id="运行截图"><a href="#运行截图" class="headerlink" title="运行截图"></a>运行截图</h3><p><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/4.png"><br><img src="/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/5.png"></p>
 ]]></content>
+      <categories>
+        <category>消息中间件</category>
+      </categories>
+      <tags>
+        <tag>RabbitMQ</tag>
+        <tag>MQ</tag>
+        <tag>Federation</tag>
+      </tags>
   </entry>
   <entry>
     <title>RabbitMQ-Federation Plugin概述</title>
@@ -378,6 +451,14 @@ rabbitmq-plugins enable rabbitmq_federation_management
 <p>具体示例参考后续文章【RabbitMQ-Federation Plugin使用示例】</p>
 </blockquote>
 ]]></content>
+      <categories>
+        <category>消息中间件</category>
+      </categories>
+      <tags>
+        <tag>RabbitMQ</tag>
+        <tag>MQ</tag>
+        <tag>Federation</tag>
+      </tags>
   </entry>
   <entry>
     <title>Spark on YARN最大化执行任务配置</title>
@@ -471,6 +552,14 @@ rabbitmq-plugins enable rabbitmq_federation_management
   --executor-cores 2 
 </code></pre>
 ]]></content>
+      <categories>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>Spark</tag>
+        <tag>YARN</tag>
+        <tag>Hadoop</tag>
+      </tags>
   </entry>
   <entry>
     <title>Spark on YARN配置资源动态申请</title>
@@ -511,6 +600,14 @@ spark.shuffle.service.port 7337
 </code></pre>
 <h2 id="额外操作"><a href="#额外操作" class="headerlink" title="额外操作"></a>额外操作</h2><p>为了让yarn支持spark的动态资源申请，还需要添加spark-yarn-shuffle的jar包：spark-<version>-yarn-shuffle.jar，本文使用spark-2.4.1版本，对应jar包位置在SPARK_HOME/yarn/spark-2.4.1-yarn-shuffle.jar。将该jar包放置HADOOP_HOME/share/hadoop/yarn/lib/目录下。</p>
 ]]></content>
+      <categories>
+        <category>大数据</category>
+      </categories>
+      <tags>
+        <tag>Spark</tag>
+        <tag>YARN</tag>
+        <tag>Hadoop</tag>
+      </tags>
   </entry>
   <entry>
     <title>OpenResty反向代理增加DNS解析支持</title>
@@ -645,5 +742,13 @@ local server_ip = host_resolver.resolve(&quot;www.baidu.com&quot;)
 </blockquote>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/dns/use_dynamic_dns.html">https://moonbingbing.gitbooks.io/openresty-best-practices/content/dns/use_dynamic_dns.html</a><br><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/ngx_lua/resolve_the_domain_name.html">https://moonbingbing.gitbooks.io/openresty-best-practices/content/ngx_lua/resolve_the_domain_name.html</a></p>
 ]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>OpenResty</tag>
+        <tag>NGINX</tag>
+        <tag>反向代理</tag>
+      </tags>
   </entry>
 </search>
