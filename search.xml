@@ -28,10 +28,11 @@ Host git.example.com
 ]]></content>
       <categories>
         <category>研发工具</category>
+        <category>Git</category>
       </categories>
       <tags>
-        <tag>git</tag>
-        <tag>ssh</tag>
+        <tag>Git</tag>
+        <tag>SSH</tag>
       </tags>
   </entry>
   <entry>
@@ -46,10 +47,11 @@ Host git.example.com
 ]]></content>
       <categories>
         <category>Linux</category>
+        <category>Shell</category>
       </categories>
       <tags>
         <tag>Linux</tag>
-        <tag>shell</tag>
+        <tag>Shell</tag>
       </tags>
   </entry>
   <entry>
@@ -207,64 +209,12 @@ public interface UserMapper &#123;
 </code></pre>
 ]]></content>
       <categories>
-        <category>数据库</category>
+        <category>ORM框架</category>
+        <category>MyBatis</category>
       </categories>
       <tags>
         <tag>MyBatis</tag>
         <tag>ORM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux exec命令使用</title>
-    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
-<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
-<pre><code>#!/bin/sh
-set -e
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    exec 3&gt;&amp;1
-else
-    exec 3&gt;/dev/null
-fi
-.....
-</code></pre>
-<span id="more"></span>
-<p>在CentOS Linux release 7.9下查看man手册</p>
-<pre><code>man exec
-</code></pre>
-<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
-<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
-<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
-<h2 id="fork简介"><a href="#fork简介" class="headerlink" title="fork简介"></a>fork简介</h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
-<p>fork命令是linux的系统调用，用来创建子进程。</p>
-<blockquote>
-<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
-</blockquote>
-<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
-<h2 id="exec的执行"><a href="#exec的执行" class="headerlink" title="exec的执行"></a>exec的执行</h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
-<h2 id="总结：exec和fork的异同"><a href="#总结：exec和fork的异同" class="headerlink" title="总结：exec和fork的异同"></a>总结：exec和fork的异同</h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
-<h2 id="exec的应用"><a href="#exec的应用" class="headerlink" title="exec的应用"></a>exec的应用</h2><h3 id="exec-执行某个指令"><a href="#exec-执行某个指令" class="headerlink" title="exec 执行某个指令"></a>exec 执行某个指令</h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
-<h3 id="exec-不执行命令"><a href="#exec-不执行命令" class="headerlink" title="exec 不执行命令"></a>exec 不执行命令</h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
-<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
-    exec 3&gt;&amp;1
-else
-    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
-    exec 3&gt;/dev/null
-fi
-</code></pre>
-<blockquote>
-<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
-</blockquote>
-<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -417,6 +367,7 @@ if __name__ == &#39;__main__&#39;:
 ]]></content>
       <categories>
         <category>消息中间件</category>
+        <category>RabbitMQ</category>
       </categories>
       <tags>
         <tag>RabbitMQ</tag>
@@ -453,6 +404,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
 ]]></content>
       <categories>
         <category>消息中间件</category>
+        <category>RabbitMQ</category>
       </categories>
       <tags>
         <tag>RabbitMQ</tag>
@@ -554,6 +506,7 @@ rabbitmq-plugins enable rabbitmq_federation_management
 ]]></content>
       <categories>
         <category>大数据</category>
+        <category>Spark</category>
       </categories>
       <tags>
         <tag>Spark</tag>
@@ -602,6 +555,7 @@ spark.shuffle.service.port 7337
 ]]></content>
       <categories>
         <category>大数据</category>
+        <category>Spark</category>
       </categories>
       <tags>
         <tag>Spark</tag>
@@ -744,11 +698,66 @@ local server_ip = host_resolver.resolve(&quot;www.baidu.com&quot;)
 ]]></content>
       <categories>
         <category>运维</category>
+        <category>NGXIN</category>
       </categories>
       <tags>
         <tag>OpenResty</tag>
         <tag>NGINX</tag>
         <tag>反向代理</tag>
+        <tag>Lua</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux exec命令使用</title>
+    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
+<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
+<pre><code>#!/bin/sh
+set -e
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    exec 3&gt;&amp;1
+else
+    exec 3&gt;/dev/null
+fi
+.....
+</code></pre>
+<span id="more"></span>
+<p>在CentOS Linux release 7.9下查看man手册</p>
+<pre><code>man exec
+</code></pre>
+<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
+<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
+<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
+<h2 id="fork简介"><a href="#fork简介" class="headerlink" title="fork简介"></a>fork简介</h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
+<p>fork命令是linux的系统调用，用来创建子进程。</p>
+<blockquote>
+<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
+</blockquote>
+<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
+<h2 id="exec的执行"><a href="#exec的执行" class="headerlink" title="exec的执行"></a>exec的执行</h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
+<h2 id="总结：exec和fork的异同"><a href="#总结：exec和fork的异同" class="headerlink" title="总结：exec和fork的异同"></a>总结：exec和fork的异同</h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
+<h2 id="exec的应用"><a href="#exec的应用" class="headerlink" title="exec的应用"></a>exec的应用</h2><h3 id="exec-执行某个指令"><a href="#exec-执行某个指令" class="headerlink" title="exec 执行某个指令"></a>exec 执行某个指令</h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
+<h3 id="exec-不执行命令"><a href="#exec-不执行命令" class="headerlink" title="exec 不执行命令"></a>exec 不执行命令</h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
+<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
+    exec 3&gt;&amp;1
+else
+    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
+    exec 3&gt;/dev/null
+fi
+</code></pre>
+<blockquote>
+<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
+</blockquote>
+<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
 </search>
