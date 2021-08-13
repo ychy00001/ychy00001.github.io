@@ -218,6 +218,59 @@ public interface UserMapper &#123;
       </tags>
   </entry>
   <entry>
+    <title>Linux exec命令使用</title>
+    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
+<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
+<pre><code>#!/bin/sh
+set -e
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    exec 3&gt;&amp;1
+else
+    exec 3&gt;/dev/null
+fi
+.....
+</code></pre>
+<span id="more"></span>
+<p>在CentOS Linux release 7.9下查看man手册</p>
+<pre><code>man exec
+</code></pre>
+<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
+<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
+<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
+<h2 id="fork简介"><a href="#fork简介" class="headerlink" title="fork简介"></a>fork简介</h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
+<p>fork命令是linux的系统调用，用来创建子进程。</p>
+<blockquote>
+<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
+</blockquote>
+<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
+<h2 id="exec的执行"><a href="#exec的执行" class="headerlink" title="exec的执行"></a>exec的执行</h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
+<h2 id="总结：exec和fork的异同"><a href="#总结：exec和fork的异同" class="headerlink" title="总结：exec和fork的异同"></a>总结：exec和fork的异同</h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
+<h2 id="exec的应用"><a href="#exec的应用" class="headerlink" title="exec的应用"></a>exec的应用</h2><h3 id="exec-执行某个指令"><a href="#exec-执行某个指令" class="headerlink" title="exec 执行某个指令"></a>exec 执行某个指令</h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
+<h3 id="exec-不执行命令"><a href="#exec-不执行命令" class="headerlink" title="exec 不执行命令"></a>exec 不执行命令</h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
+<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
+if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
+    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
+    exec 3&gt;&amp;1
+else
+    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
+    exec 3&gt;/dev/null
+fi
+</code></pre>
+<blockquote>
+<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
+</blockquote>
+<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RabbitMQ-Federation Plugin使用示例</title>
     <url>/2021/06/RabbitMQ-Federation-Plugin%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</url>
     <content><![CDATA[<p>本文采用docker环境来做Federation Plugin配置的流程。</p>
@@ -708,56 +761,86 @@ local server_ip = host_resolver.resolve(&quot;www.baidu.com&quot;)
       </tags>
   </entry>
   <entry>
-    <title>Linux exec命令使用</title>
-    <url>/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<p>本文介绍exec的基本功能及使用方式。</p>
-<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>看到ngxin的docker-entrypoint.sh中写有exec相关命令不清楚为何如此使用，如下：</p>
-<pre><code>#!/bin/sh
-set -e
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    exec 3&gt;&amp;1
-else
-    exec 3&gt;/dev/null
-fi
-.....
-</code></pre>
+    <title>python使用pyarrow打开haddop大文件异常</title>
+    <url>/2021/08/python%E4%BD%BF%E7%94%A8pyarrow%E6%89%93%E5%BC%80haddop%E5%A4%A7%E6%96%87%E4%BB%B6%E5%BC%82%E5%B8%B8/</url>
+    <content><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>项目中计算文件行数，使用Pyarror库 HadoopFileSystem.open_input_stream()打开hadoop大文件会被Killed，并且通过spark运行无任何异常日志。</p>
+<blockquote>
+<p>机器内存：16G   hadoop文件：24G</p>
+</blockquote>
 <span id="more"></span>
-<p>在CentOS Linux release 7.9下查看man手册</p>
-<pre><code>man exec
+<h1 id="原始代码"><a href="#原始代码" class="headerlink" title="原始代码"></a>原始代码</h1><pre><code>import io
+import subprocess
+from pyarrow import fs
+
+path = &quot;hdfs://hadoop-master:9000//fate/input_data/epsilon/epsilon_host_500w&quot;
+try:
+    from pyarrow import HadoopFileSystem
+    HadoopFileSystem(path)
+except Exception as e:
+    print(&quot;error&quot;)
+_hdfs_client = fs.HadoopFileSystem.from_uri(path)
+
+def _as_generator():
+    with io.TextIOWrapper(buffer=_hdfs_client.open_input_stream(path,buffer_size=1024*1024*8),encoding=&quot;utf-8&quot;) as reader:
+        print(&quot;-----准备流结束------&quot;)
+        for line in reader:
+            yield line
+
+
+def count():
+    count = 0
+    for _ in _as_generator():
+        count += 1
+    print(count)
+    return count
+
+if __name__ == &#39;__main__&#39;:
+   print(count())
 </code></pre>
-<p>如何所示，该命令是bash中内嵌的命令：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/1.png"></p>
-<p>我们找到exec的描述信息：<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/2.png"></p>
-<p>如果指定该命令，他会替换当前shell。并且不会创建新的进程。</p>
-<h2 id="fork简介"><a href="#fork简介" class="headerlink" title="fork简介"></a>fork简介</h2><p>上面提到不会现在新的进程，这里不得不提一下linux的子进程概念。</p>
-<p>fork命令是linux的系统调用，用来创建子进程。</p>
-<blockquote>
-<p>子进程概念：由另外一个进程（对应称之为父进程）所创建的进程。 子进程继承了父进程的大部分属性，例如文件描述符。</p>
-</blockquote>
-<p>我们在写shell时候会在开头定义：#!/bin/sh。这样在执行该xxx.sh文件时，系统会使用fork命令，重新开一个sub-shell来执行你的shell脚本。</p>
-<h2 id="exec的执行"><a href="#exec的执行" class="headerlink" title="exec的执行"></a>exec的执行</h2><p>回到我们的exec命令，执行exec命令时，系统不会fork子进程，而是会用一个新的进程镜像来替换当前进程镜像。新的进程跟fork后的进程不一样，新的进程跟旧进程是有同样的pid（进程id）和同样的上下文环境。它将程序加载到当前进程空间，并在入口点运行exec需要执行的程序。</p>
-<h2 id="总结：exec和fork的异同"><a href="#总结：exec和fork的异同" class="headerlink" title="总结：exec和fork的异同"></a>总结：exec和fork的异同</h2><p>fork: 创建新的子进程，父进程和子进程同时运行<br>exec: 创建进程镜像替换旧进程，没有父子进程一说。</p>
-<h2 id="exec的应用"><a href="#exec的应用" class="headerlink" title="exec的应用"></a>exec的应用</h2><h3 id="exec-执行某个指令"><a href="#exec-执行某个指令" class="headerlink" title="exec 执行某个指令"></a>exec 执行某个指令</h3><p>exec执行某个命令会执行完并退出bash<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/3.png"></p>
-<h3 id="exec-不执行命令"><a href="#exec-不执行命令" class="headerlink" title="exec 不执行命令"></a>exec 不执行命令</h3><p>exec未携带命令执行表示重定向bash中内容<br><img src="/2021/06/Linux-exec%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/4.png"></p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>回到我们开头解释我们nginx的docker-entrypoint.sh，如下代码：</p>
-<pre><code># 如果没有设置（-z 如果字符串为空则返回true）NGINX_ENTRYPOINT_QUIET_LOGS标识
-if [ -z &quot;$&#123;NGINX_ENTRYPOINT_QUIET_LOGS:-&#125;&quot; ]; then
-    # 将标准错误输出（3：stderr）重定向至标准输出中（1：stdout，&amp; ：引用标识）
-    exec 3&gt;&amp;1
-else
-    # 如果存在NGINX_ENTRYPOINT_QUIET_LOGS则将标准错误输出内容移除
-    exec 3&gt;/dev/null
-fi
+<p>#监控内存信息：</p>
+<pre><code>              total        used        free      shared  buff/cache   available
+Mem:            15G        5.3G        9.4G        353M        768M        9.6G
+Swap:            0B          0B          0B
+
+              total        used        free      shared  buff/cache   available
+Mem:            15G        9.5G        922M        353M        5.1G        5.4G
+Swap:            0B          0B          0B
+
+              total        used        free      shared  buff/cache   available
+Mem:            15G         12G        154M        353M        2.5G        2.0G
+Swap:            0B          0B          0B
+
+              total        used        free      shared  buff/cache   available
+Mem:            15G         14G        156M        353M        847M        354M
+Swap:            0B          0B          0B
 </code></pre>
-<blockquote>
-<p>上述代码中3、1是shell文件描述符相关支持，参考后续博文介绍</p>
-</blockquote>
-<p>参考文献：<br><a href="https://www.geeksforgeeks.org/difference-fork-exec/">https://www.geeksforgeeks.org/difference-fork-exec/</a><br><a href="http://xstarcd.github.io/wiki/shell/exec_redirect.html">http://xstarcd.github.io/wiki/shell/exec_redirect.html</a></p>
+<h1 id="运行日志-（spark-submit）"><a href="#运行日志-（spark-submit）" class="headerlink" title="运行日志 （spark-submit）"></a>运行日志 （spark-submit）</h1><p>运行在spark中无异常信息日志如下：</p>
+<pre><code>21/08/13 03:10:26 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+21/08/13 03:10:27 WARN hdfs.DFSClient: zero
+-----准备流结束------
+21/08/13 11:10:54 INFO util.ShutdownHookManager: Shutdown hook called
+21/08/13 11:10:54 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-9ba6ca35-4068-47bb-b09b-5e94cad85d09
+</code></pre>
+<h1 id="直接用python运行日志如下："><a href="#直接用python运行日志如下：" class="headerlink" title="直接用python运行日志如下："></a>直接用python运行日志如下：</h1><pre><code>21/08/13 03:09:36 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+21/08/13 03:09:37 WARN hdfs.DFSClient: zero
+-----准备流结束------
+Killed
+</code></pre>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>直接用python直接调用时会出现Killed的系统异常信息（该信息无法在python层面被捕获）。运行在spark环境中时不会有系统的kill信息显示，生产环境中出现问题后并不好排查。目前推测HadoopFileSystem.open_input_stream()打开的文件流是整个文件大小。</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>目前使用hadoop命令来替换之前的流处理，通过子进程执行hadoop fs -cat ${path}返回的标准输出来逐行读取内容。</p>
+<pre><code>def _as_generator():
+    content_pipe = subprocess.Popen([&quot;hadoop&quot;,&quot;fs&quot;,&quot;-cat&quot;,path], stdout=subprocess.PIPE)
+    for line in content_pipe.stdout:
+        yield line
+</code></pre>
 ]]></content>
       <categories>
-        <category>Linux</category>
+        <category>问题总结</category>
       </categories>
       <tags>
-        <tag>Linux</tag>
+        <tag>python</tag>
+        <tag>pyarrow</tag>
+        <tag>hadoop</tag>
       </tags>
   </entry>
 </search>
