@@ -617,70 +617,6 @@ spark.shuffle.service.port 7337
       </tags>
   </entry>
   <entry>
-    <title>Hadoop异常问题整理</title>
-    <url>/2021/08/Hadoop%E5%BC%82%E5%B8%B8%E9%97%AE%E9%A2%98%E6%95%B4%E7%90%86/</url>
-    <content><![CDATA[<h1 id="磁盘空间未满，提示空间不足"><a href="#磁盘空间未满，提示空间不足" class="headerlink" title="磁盘空间未满，提示空间不足"></a>磁盘空间未满，提示空间不足</h1><h2 id="背景："><a href="#背景：" class="headerlink" title="背景："></a>背景：</h2><p>通过python传输一个16G的文件，通过读取每次读取8MB行信息追加到hadoop中。查看磁盘并没有占满：</p>
-<pre><code>$ df -h
-Filesystem             Size  Used Avail Use% Mounted on
-devtmpfs               7.8G     0  7.8G   0% /dev
-tmpfs                  7.8G     0  7.8G   0% /dev/shm
-tmpfs                  7.8G  369M  7.4G   5% /run
-tmpfs                  7.8G     0  7.8G   0% /sys/fs/cgroup
-/dev/vda1               40G   14G   24G  36% /
-/dev/mapper/data-data  500G  107G  394G  22% /data
-</code></pre>
-<p>DataNode日志信息如下：</p>
-<pre><code>org.apache.hadoop.util.DiskChecker$DiskOutOfSpaceException: Insufficient space for appending to FinalizedReplica, blk_1073743960_7306, FINALIZED
-  getNumBytes()     = 39857529
-  getBytesOnDisk()  = 39857529
-  getVisibleLength()= 39857529
-  getVolume()       = /opt/hadoop/data/dfs/data/current
-  getBlockFile()    = /opt/hadoop/data/dfs/data/current/BP-763661453-172.20.0.4-1627020836502/current/finalized/subdir0/subdir8/blk_1073743960
-    at org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetImpl.append(FsDatasetImpl.java:1215)
-    at org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetImpl.append(FsDatasetImpl.java:1177)
-    at org.apache.hadoop.hdfs.server.datanode.BlockReceiver.&lt;init&gt;(BlockReceiver.java:220)
-    at org.apache.hadoop.hdfs.server.datanode.DataXceiver.getBlockReceiver(DataXceiver.java:1254)
-    at org.apache.hadoop.hdfs.server.datanode.DataXceiver.writeBlock(DataXceiver.java:720)
-    at org.apache.hadoop.hdfs.protocol.datatransfer.Receiver.opWriteBlock(Receiver.java:166)
-    at org.apache.hadoop.hdfs.protocol.datatransfer.Receiver.processOp(Receiver.java:103)
-    at org.apache.hadoop.hdfs.server.datanode.DataXceiver.run(DataXceiver.java:288)
-    at java.lang.Thread.run(Thread.java:748)
-</code></pre>
-<blockquote>
-<p>当前问题是hadoop一个还未处理的BUG：<a href="https://issues.apache.org/jira/browse/HDFS-6489">https://issues.apache.org/jira/browse/HDFS-6489</a></p>
-</blockquote>
-<h2 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h2><p>目前在应用层增大每次追加数据量，减少追加次数来尽量避免该问题</p>
-<h1 id="hadoop节点间传输数据异常"><a href="#hadoop节点间传输数据异常" class="headerlink" title="hadoop节点间传输数据异常"></a>hadoop节点间传输数据异常</h1><h2 id="背景：-1"><a href="#背景：-1" class="headerlink" title="背景："></a>背景：</h2><p>docker搭建hadoop集群，master和slave节点分别在不同的机器的docker容器中。启动服务上传数据后各个datenode会报警告，异常日志如下：</p>
-<pre><code>2021-08-11 10:19:05,628 WARN org.apache.hadoop.hdfs.server.datanode.DataNode: DatanodeRegistration(10.35.2.118:50010, datanodeUuid=1f82aee1-caaf-4e61-a6f9-9ba75bd44b8a, infoPort=50075, infoSecurePort=0, ipcPort=50020, storageInfo=lv=-57;cid=CID-ae77e4c7-fcd2-41ce-804d-ab8acb6120c7;nsid=455830163;c=1627886917835):Failed to transfer BP-372102307-172.18.0.4-1627886917835:blk_1073752046_13292 to 172.18.0.4:50010 got
-java.net.NoRouteToHostException: No route to host
-        at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
-        at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:717)
-        at org.apache.hadoop.net.SocketIOWithTimeout.connect(SocketIOWithTimeout.java:206)
-        at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:531)
-        at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:495)
-        at org.apache.hadoop.hdfs.server.datanode.DataNode$DataTransfer.run(DataNode.java:2320)
-        at java.lang.Thread.run(Thread.java:748)
-</code></pre>
-<h2 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h2><p>hadoop默认dfs.datanode.address为0.0.0.0:50010，0.0.0.0对应容器地址已上述日志例子中是172.18.0.4，其他节点访问172.18.0.4是无法访问的，因为是其他机器的虚拟IP地址。</p>
-<h2 id="解决方案：-1"><a href="#解决方案：-1" class="headerlink" title="解决方案："></a>解决方案：</h2><p>将dfs.datanode.use.datanode.hostname设置为true（默认是false）。</p>
-<pre><code>&lt;property&gt;
-        &lt;name&gt;dfs.datanode.use.datanode.hostname&lt;/name&gt;
-        &lt;value&gt;true&lt;/value&gt;
-&lt;/property&gt;
-</code></pre>
-<p>官方解释如下：</p>
-<pre><code>Whether datanodes should use datanode hostnames when connecting to other datanodes for data transfer.
-</code></pre>
-<p>大致意思为：datanodes与其他节点传输数据时是否使用datanode主机名</p>
-]]></content>
-      <categories>
-        <category>问题总结</category>
-      </categories>
-      <tags>
-        <tag>Hadoop</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>OpenResty反向代理增加DNS解析支持</title>
     <url>/2021/08/OpenResty%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%A2%9E%E5%8A%A0DNS%E8%A7%A3%E6%9E%90%E6%94%AF%E6%8C%81/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>当前工作中使用了开源的联邦学习框架FATE，其中“on spark”架构中使用到了OpenResty来做网关，docker部署服务时服务间的通讯直接使用docker-hostname来访问的，但是OpenResty中调用set_current_peer()无法直接请求hostname。代码片段如下</p>
@@ -822,6 +758,153 @@ local server_ip = host_resolver.resolve(&quot;www.baidu.com&quot;)
         <tag>NGINX</tag>
         <tag>反向代理</tag>
         <tag>Lua</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hadoop异常问题整理</title>
+    <url>/2021/08/Hadoop%E5%BC%82%E5%B8%B8%E9%97%AE%E9%A2%98%E6%95%B4%E7%90%86/</url>
+    <content><![CDATA[<h1 id="磁盘空间未满，提示空间不足"><a href="#磁盘空间未满，提示空间不足" class="headerlink" title="磁盘空间未满，提示空间不足"></a>磁盘空间未满，提示空间不足</h1><h2 id="背景："><a href="#背景：" class="headerlink" title="背景："></a>背景：</h2><p>通过python传输一个16G的文件，通过读取每次读取8MB行信息追加到hadoop中。查看磁盘并没有占满：</p>
+<pre><code>$ df -h
+Filesystem             Size  Used Avail Use% Mounted on
+devtmpfs               7.8G     0  7.8G   0% /dev
+tmpfs                  7.8G     0  7.8G   0% /dev/shm
+tmpfs                  7.8G  369M  7.4G   5% /run
+tmpfs                  7.8G     0  7.8G   0% /sys/fs/cgroup
+/dev/vda1               40G   14G   24G  36% /
+/dev/mapper/data-data  500G  107G  394G  22% /data
+</code></pre>
+<p>DataNode日志信息如下：</p>
+<pre><code>org.apache.hadoop.util.DiskChecker$DiskOutOfSpaceException: Insufficient space for appending to FinalizedReplica, blk_1073743960_7306, FINALIZED
+  getNumBytes()     = 39857529
+  getBytesOnDisk()  = 39857529
+  getVisibleLength()= 39857529
+  getVolume()       = /opt/hadoop/data/dfs/data/current
+  getBlockFile()    = /opt/hadoop/data/dfs/data/current/BP-763661453-172.20.0.4-1627020836502/current/finalized/subdir0/subdir8/blk_1073743960
+    at org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetImpl.append(FsDatasetImpl.java:1215)
+    at org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetImpl.append(FsDatasetImpl.java:1177)
+    at org.apache.hadoop.hdfs.server.datanode.BlockReceiver.&lt;init&gt;(BlockReceiver.java:220)
+    at org.apache.hadoop.hdfs.server.datanode.DataXceiver.getBlockReceiver(DataXceiver.java:1254)
+    at org.apache.hadoop.hdfs.server.datanode.DataXceiver.writeBlock(DataXceiver.java:720)
+    at org.apache.hadoop.hdfs.protocol.datatransfer.Receiver.opWriteBlock(Receiver.java:166)
+    at org.apache.hadoop.hdfs.protocol.datatransfer.Receiver.processOp(Receiver.java:103)
+    at org.apache.hadoop.hdfs.server.datanode.DataXceiver.run(DataXceiver.java:288)
+    at java.lang.Thread.run(Thread.java:748)
+</code></pre>
+<blockquote>
+<p>当前问题是hadoop一个还未处理的BUG：<a href="https://issues.apache.org/jira/browse/HDFS-6489">https://issues.apache.org/jira/browse/HDFS-6489</a></p>
+</blockquote>
+<h2 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h2><p>目前在应用层增大每次追加数据量，减少追加次数来尽量避免该问题</p>
+<h1 id="hadoop节点间传输数据异常"><a href="#hadoop节点间传输数据异常" class="headerlink" title="hadoop节点间传输数据异常"></a>hadoop节点间传输数据异常</h1><h2 id="背景：-1"><a href="#背景：-1" class="headerlink" title="背景："></a>背景：</h2><p>docker搭建hadoop集群，master和slave节点分别在不同的机器的docker容器中。启动服务上传数据后各个datenode会报警告，异常日志如下：</p>
+<pre><code>2021-08-11 10:19:05,628 WARN org.apache.hadoop.hdfs.server.datanode.DataNode: DatanodeRegistration(10.35.2.118:50010, datanodeUuid=1f82aee1-caaf-4e61-a6f9-9ba75bd44b8a, infoPort=50075, infoSecurePort=0, ipcPort=50020, storageInfo=lv=-57;cid=CID-ae77e4c7-fcd2-41ce-804d-ab8acb6120c7;nsid=455830163;c=1627886917835):Failed to transfer BP-372102307-172.18.0.4-1627886917835:blk_1073752046_13292 to 172.18.0.4:50010 got
+java.net.NoRouteToHostException: No route to host
+        at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+        at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:717)
+        at org.apache.hadoop.net.SocketIOWithTimeout.connect(SocketIOWithTimeout.java:206)
+        at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:531)
+        at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:495)
+        at org.apache.hadoop.hdfs.server.datanode.DataNode$DataTransfer.run(DataNode.java:2320)
+        at java.lang.Thread.run(Thread.java:748)
+</code></pre>
+<h2 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h2><p>hadoop默认dfs.datanode.address为0.0.0.0:50010，0.0.0.0对应容器地址已上述日志例子中是172.18.0.4，其他节点访问172.18.0.4是无法访问的，因为是其他机器的虚拟IP地址。</p>
+<h2 id="解决方案：-1"><a href="#解决方案：-1" class="headerlink" title="解决方案："></a>解决方案：</h2><p>将dfs.datanode.use.datanode.hostname设置为true（默认是false）。</p>
+<pre><code>&lt;property&gt;
+        &lt;name&gt;dfs.datanode.use.datanode.hostname&lt;/name&gt;
+        &lt;value&gt;true&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+<p>官方解释如下：</p>
+<pre><code>Whether datanodes should use datanode hostnames when connecting to other datanodes for data transfer.
+</code></pre>
+<p>大致意思为：datanodes与其他节点传输数据时是否使用datanode主机名</p>
+]]></content>
+      <categories>
+        <category>问题总结</category>
+      </categories>
+      <tags>
+        <tag>Hadoop</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python使用pyarrow打开haddop大文件异常</title>
+    <url>/2021/08/python%E4%BD%BF%E7%94%A8pyarrow%E6%89%93%E5%BC%80haddop%E5%A4%A7%E6%96%87%E4%BB%B6%E5%BC%82%E5%B8%B8/</url>
+    <content><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>项目中计算文件行数，使用Pyarror库 HadoopFileSystem.open_input_stream()打开hadoop大文件会被Killed，并且通过spark运行无任何异常日志。</p>
+<blockquote>
+<p>机器内存：16G   hadoop文件：24G</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="原始代码"><a href="#原始代码" class="headerlink" title="原始代码"></a>原始代码</h1><pre><code>import io
+import subprocess
+from pyarrow import fs
+
+path = &quot;hdfs://hadoop-master:9000//fate/input_data/epsilon/epsilon_host_500w&quot;
+try:
+    from pyarrow import HadoopFileSystem
+    HadoopFileSystem(path)
+except Exception as e:
+    print(&quot;error&quot;)
+_hdfs_client = fs.HadoopFileSystem.from_uri(path)
+
+def _as_generator():
+    with io.TextIOWrapper(buffer=_hdfs_client.open_input_stream(path,buffer_size=1024*1024*8),encoding=&quot;utf-8&quot;) as reader:
+        print(&quot;-----准备流结束------&quot;)
+        for line in reader:
+            yield line
+
+
+def count():
+    count = 0
+    for _ in _as_generator():
+        count += 1
+    print(count)
+    return count
+
+if __name__ == &#39;__main__&#39;:
+   print(count())
+</code></pre>
+<p>#监控内存信息：</p>
+<pre><code>              total        used        free      shared  buff/cache   available
+Mem:            15G        5.3G        9.4G        353M        768M        9.6G
+Swap:            0B          0B          0B
+
+              total        used        free      shared  buff/cache   available
+Mem:            15G        9.5G        922M        353M        5.1G        5.4G
+Swap:            0B          0B          0B
+
+              total        used        free      shared  buff/cache   available
+Mem:            15G         12G        154M        353M        2.5G        2.0G
+Swap:            0B          0B          0B
+
+              total        used        free      shared  buff/cache   available
+Mem:            15G         14G        156M        353M        847M        354M
+Swap:            0B          0B          0B
+</code></pre>
+<h1 id="运行日志-（spark-submit）"><a href="#运行日志-（spark-submit）" class="headerlink" title="运行日志 （spark-submit）"></a>运行日志 （spark-submit）</h1><p>运行在spark中无异常信息日志如下：</p>
+<pre><code>21/08/13 03:10:26 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+21/08/13 03:10:27 WARN hdfs.DFSClient: zero
+-----准备流结束------
+21/08/13 11:10:54 INFO util.ShutdownHookManager: Shutdown hook called
+21/08/13 11:10:54 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-9ba6ca35-4068-47bb-b09b-5e94cad85d09
+</code></pre>
+<h1 id="直接用python运行日志如下："><a href="#直接用python运行日志如下：" class="headerlink" title="直接用python运行日志如下："></a>直接用python运行日志如下：</h1><pre><code>21/08/13 03:09:36 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+21/08/13 03:09:37 WARN hdfs.DFSClient: zero
+-----准备流结束------
+Killed
+</code></pre>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>直接用python直接调用时会出现Killed的系统异常信息（该信息无法在python层面被捕获）。运行在spark环境中时不会有系统的kill信息显示，生产环境中出现问题后并不好排查。目前推测HadoopFileSystem.open_input_stream()打开的文件流是整个文件大小。</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>目前使用hadoop命令来替换之前的流处理，通过子进程执行hadoop fs -cat ${path}返回的标准输出来逐行读取内容。</p>
+<pre><code>def _as_generator():
+    content_pipe = subprocess.Popen([&quot;hadoop&quot;,&quot;fs&quot;,&quot;-cat&quot;,path], stdout=subprocess.PIPE)
+    for line in content_pipe.stdout:
+        yield line
+</code></pre>
+]]></content>
+      <categories>
+        <category>问题总结</category>
+      </categories>
+      <tags>
+        <tag>Hadoop</tag>
+        <tag>Python</tag>
+        <tag>Pyarrow</tag>
       </tags>
   </entry>
   <entry>
@@ -1028,91 +1111,8 @@ if __name__ == &#39;__main__&#39;:
       </tags>
   </entry>
   <entry>
-    <title>python使用pyarrow打开haddop大文件异常</title>
-    <url>/2021/08/python%E4%BD%BF%E7%94%A8pyarrow%E6%89%93%E5%BC%80haddop%E5%A4%A7%E6%96%87%E4%BB%B6%E5%BC%82%E5%B8%B8/</url>
-    <content><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>项目中计算文件行数，使用Pyarror库 HadoopFileSystem.open_input_stream()打开hadoop大文件会被Killed，并且通过spark运行无任何异常日志。</p>
-<blockquote>
-<p>机器内存：16G   hadoop文件：24G</p>
-</blockquote>
-<span id="more"></span>
-<h1 id="原始代码"><a href="#原始代码" class="headerlink" title="原始代码"></a>原始代码</h1><pre><code>import io
-import subprocess
-from pyarrow import fs
-
-path = &quot;hdfs://hadoop-master:9000//fate/input_data/epsilon/epsilon_host_500w&quot;
-try:
-    from pyarrow import HadoopFileSystem
-    HadoopFileSystem(path)
-except Exception as e:
-    print(&quot;error&quot;)
-_hdfs_client = fs.HadoopFileSystem.from_uri(path)
-
-def _as_generator():
-    with io.TextIOWrapper(buffer=_hdfs_client.open_input_stream(path,buffer_size=1024*1024*8),encoding=&quot;utf-8&quot;) as reader:
-        print(&quot;-----准备流结束------&quot;)
-        for line in reader:
-            yield line
-
-
-def count():
-    count = 0
-    for _ in _as_generator():
-        count += 1
-    print(count)
-    return count
-
-if __name__ == &#39;__main__&#39;:
-   print(count())
-</code></pre>
-<p>#监控内存信息：</p>
-<pre><code>              total        used        free      shared  buff/cache   available
-Mem:            15G        5.3G        9.4G        353M        768M        9.6G
-Swap:            0B          0B          0B
-
-              total        used        free      shared  buff/cache   available
-Mem:            15G        9.5G        922M        353M        5.1G        5.4G
-Swap:            0B          0B          0B
-
-              total        used        free      shared  buff/cache   available
-Mem:            15G         12G        154M        353M        2.5G        2.0G
-Swap:            0B          0B          0B
-
-              total        used        free      shared  buff/cache   available
-Mem:            15G         14G        156M        353M        847M        354M
-Swap:            0B          0B          0B
-</code></pre>
-<h1 id="运行日志-（spark-submit）"><a href="#运行日志-（spark-submit）" class="headerlink" title="运行日志 （spark-submit）"></a>运行日志 （spark-submit）</h1><p>运行在spark中无异常信息日志如下：</p>
-<pre><code>21/08/13 03:10:26 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-21/08/13 03:10:27 WARN hdfs.DFSClient: zero
------准备流结束------
-21/08/13 11:10:54 INFO util.ShutdownHookManager: Shutdown hook called
-21/08/13 11:10:54 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-9ba6ca35-4068-47bb-b09b-5e94cad85d09
-</code></pre>
-<h1 id="直接用python运行日志如下："><a href="#直接用python运行日志如下：" class="headerlink" title="直接用python运行日志如下："></a>直接用python运行日志如下：</h1><pre><code>21/08/13 03:09:36 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-21/08/13 03:09:37 WARN hdfs.DFSClient: zero
------准备流结束------
-Killed
-</code></pre>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>直接用python直接调用时会出现Killed的系统异常信息（该信息无法在python层面被捕获）。运行在spark环境中时不会有系统的kill信息显示，生产环境中出现问题后并不好排查。目前推测HadoopFileSystem.open_input_stream()打开的文件流是整个文件大小。</p>
-<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>目前使用hadoop命令来替换之前的流处理，通过子进程执行hadoop fs -cat ${path}返回的标准输出来逐行读取内容。</p>
-<pre><code>def _as_generator():
-    content_pipe = subprocess.Popen([&quot;hadoop&quot;,&quot;fs&quot;,&quot;-cat&quot;,path], stdout=subprocess.PIPE)
-    for line in content_pipe.stdout:
-        yield line
-</code></pre>
-]]></content>
-      <categories>
-        <category>问题总结</category>
-      </categories>
-      <tags>
-        <tag>Hadoop</tag>
-        <tag>Python</tag>
-        <tag>Pyarrow</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>FATE-文件上传流程整理(附：Java序列化实现样例)</title>
-    <url>/2021/09/FATE-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86-%E9%99%84%EF%BC%9AJava%E5%AE%9E%E7%8E%B0%E6%A0%B7%E4%BE%8B/</url>
+    <url>/2021/09/FATE-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86-%E9%99%84%EF%BC%9AJava%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%9E%E7%8E%B0%E6%A0%B7%E4%BE%8B/</url>
     <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>本文梳理微众银行-FATE框架On Spark架构下，文件上传的基本执行流程和关键的数据处理点，从而使用现有业务框架来改造文件上传流程，实现业务系统多数据源的接入。</p>
 <blockquote>
 <p>FATE在处理数据的序列化时使用了Python常用的Pickle库进行序列化，本文找到了Java的替代方案，后面有代码样例</p>
