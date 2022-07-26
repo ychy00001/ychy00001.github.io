@@ -1098,8 +1098,8 @@ if __name__ == &#39;__main__&#39;:
         except SystemExit:
             os._exit(0)
 </code></pre>
-<p>运行结果如下：<br><img src="/1.jpg"><br><img src="/2.jpg"></p>
-<h1 id="附录：FATE运行时MQ截图示例"><a href="#附录：FATE运行时MQ截图示例" class="headerlink" title="附录：FATE运行时MQ截图示例"></a>附录：FATE运行时MQ截图示例</h1><p><img src="/3.jpg"><br><img src="/4.jpg"><br><img src="/5.jpg"><br><img src="/6.jpg"></p>
+<p>运行结果如下：<br><img src="/2021/09/FATE-on-RabbitMQ%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/1.png"><br><img src="/2021/09/FATE-on-RabbitMQ%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/2.png"></p>
+<h1 id="附录：FATE运行时MQ截图示例"><a href="#附录：FATE运行时MQ截图示例" class="headerlink" title="附录：FATE运行时MQ截图示例"></a>附录：FATE运行时MQ截图示例</h1><p><img src="/2021/09/FATE-on-RabbitMQ%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/3.png"><br><img src="/2021/09/FATE-on-RabbitMQ%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/4.png"><br><img src="/2021/09/FATE-on-RabbitMQ%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/5.png"><br><img src="/2021/09/FATE-on-RabbitMQ%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/6.png"></p>
 ]]></content>
       <categories>
         <category>联邦学习</category>
